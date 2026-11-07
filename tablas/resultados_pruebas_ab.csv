@@ -1,0 +1,19 @@
+id,problema,variante,F1_aleat,F1crit_aleat,F1_grupo,F1crit_grupo
+P1,Partición aleatoria vs por grupo,A,1.0,1.0,0.219,0.0
+P1,Partición aleatoria vs por grupo,B,1.0,1.0,0.219,0.0
+P2,"PII: enmascarar EMAIL vs eliminar ""correo EMAIL""",A,1.0,1.0,0.219,0.0
+P2,"PII: enmascarar EMAIL vs eliminar ""correo EMAIL""",B,1.0,1.0,0.221,0.0
+P3,URL: token URL vs eliminar plantilla,A,1.0,1.0,0.219,0.0
+P3,URL: token URL vs eliminar plantilla,B,1.0,1.0,0.213,0.0
+P4,Emojis/puntuación: crudos vs EMO_NEG y signos normalizados,A,1.0,1.0,0.219,0.0
+P4,Emojis/puntuación: crudos vs EMO_NEG y signos normalizados,B,1.0,1.0,0.227,0.042
+P5,Tildes: conservar vs strip_accents,A,1.0,1.0,0.219,0.0
+P5,Tildes: conservar vs strip_accents,B,1.0,1.0,0.219,0.0
+P6,Typos: sin corregir vs diccionario de normalización,A,1.0,1.0,0.219,0.0
+P6,Typos: sin corregir vs diccionario de normalización,B,1.0,1.0,0.225,0.027
+P7,Stopwords: lista genérica (sin 'no') vs lista que conserva 'no',A,1.0,1.0,0.24,0.016
+P7,Stopwords: lista genérica (sin 'no') vs lista que conserva 'no',B,1.0,1.0,0.218,0.016
+P8,Desbalance: sin pesos vs class_weight=balanced,A,1.0,1.0,0.196,0.0
+P8,Desbalance: sin pesos vs class_weight=balanced,B,1.0,1.0,0.219,0.0
+P9,Metadatos: solo texto vs texto + prioridad,A,1.0,1.0,0.219,0.0
+P9,Metadatos: solo texto vs texto + prioridad,B,1.0,1.0,0.321,0.179

@@ -1,0 +1,6 @@
+categoria,mensajes,aciertos,precision,recall,f1
+Cancelación,115,59,0.33,0.513,0.401
+Entrega,256,256,0.778,1.0,0.875
+Facturación,314,314,0.824,1.0,0.904
+Producto,225,0,0.0,0.0,0.0
+Servicio,290,0,0.0,0.0,0.0

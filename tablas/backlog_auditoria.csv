@@ -1,0 +1,11 @@
+id,problema,evidencia,impacto,transformacion,prueba_AB,prioridad,responsable
+P1,Duplicados masivos y fuga train/test,~219 textos únicos y 20 frases base; >90% del test idéntico en train,"F1 inflado (≈1,0); el torneo no discrimina",Deduplicar + StratifiedGroupKFold por frase base,Partición aleatoria vs por grupo,Alta,ML / Ciencia de Datos
+P2,PII: correo con ID de cliente,Correos clienteN@mail.co; N = id,Riesgo legal (Ley 1581) y fuga de identificador,"Eliminar plantilla ""correo EMAIL"" antes de guardar o vectorizar",EMAIL enmascarado vs plantilla eliminada,Alta,Gerencia IA / Ciencia de Datos
+P3,URLs de plantilla,"""visita https://ejemplo.co/caso"" → ""visita URL""",Ruido en vocabulario y n-gramas de caracteres,Eliminar plantilla o token único URL,Token URL vs eliminación,Media,Ciencia de Datos
+P4,Emojis y puntuación expresiva,😕 y !!!/??/... uniformes entre clases,Ruido para categoría; señal útil para urgencia,EMO_NEG + colapsar signos; guardar como variable aparte,Crudo vs normalizado (word y char),Baja,ML
+P5,Mayúsculas y tildes,Variantes de capitalización; términos con tilde,Fragmentación del vocabulario,lowercase + evaluar strip_accents,Con vs sin tildes,Media,ML
+P6,Errores y abreviaturas,"""x""→por, ""paqte""; OOV en corpus",Rasgos aislados o perdidos con min_df,Diccionario de normalización o char_wb/fastText,Sin vs con diccionario,Media,Ciencia de Datos
+P7,Negación y stopwords,"""no"" en ~1/3 de mensajes; define el sentido",Pérdida de señal en Cancelación/Facturación,No quitar negaciones; bigramas,"Stopwords genéricas vs conservando ""no""",Alta,ML
+P8,Desbalance (Cancelación),Clase minoritaria y de mayor costo,Falsos negativos en retención,"Estratificar, class_weight, F1/recall por clase y umbral propio",Sin pesos vs balanced,Alta,ML / Gerencia IA
+P9,Metadatos con fuga y canal,prioridad=alta solo en Facturación/Cancelación,"Desempeño inflado, no disponible en inferencia",Excluir prioridad/satisfacción; reportar por canal,Texto vs texto + prioridad,Alta,Ciencia de Datos / Gerencia IA
+P10,Corpus de embeddings contaminado,"800 líneas, 20 únicas, etiqueta pegada al final",Fuga de etiqueta y vecinos triviales,"Quitar sufijo, deduplicar, excluir test, ampliar corpus",Corpus original vs limpio (Act. C),Alta,Ciencia de Datos

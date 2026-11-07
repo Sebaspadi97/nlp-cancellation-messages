@@ -1,0 +1,1459 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Torneo de Representaciones Textuales · SP Lab</title>
+<meta name="description" content="Aplicación interactiva del caso ¿Qué mensajes anuncian una cancelación? de Sebas Padilla Lab: ejercicio académico con datos sintéticos.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+html,body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+/* SP Lab · cuaderno de laboratorio: papel milimetrado en el encabezado, figuras numeradas, zonas oscuras para la evidencia */
+@font-face{font-family:'Montserrat';src:url(fuentes/Montserrat-SemiBold.woff) format('woff');font-weight:600;font-display:swap}
+@font-face{font-family:'Montserrat';src:url(fuentes/Montserrat-Bold.woff) format('woff');font-weight:700 800;font-display:swap}
+@font-face{font-family:'Open Sans';src:url(fuentes/OpenSans-Regular.woff) format('woff');font-weight:400;font-display:swap}
+@font-face{font-family:'Open Sans';src:url(fuentes/OpenSans-SemiBold.woff) format('woff');font-weight:600 700;font-display:swap}
+:root{
+  color-scheme:light;
+  --green:#245B45; --green-deep:#183D32; --green-night:#11291F; --green-logo:#2F8665;
+  --white:#F8FAF7; --paper:#FFFFFF; --gray-light:#E7EBE7; --line-2:#C9D2CB; --slate:#66736C; --carbon:#202824;
+  --on-dark:#CFD8D2; --on-dark-muted:#A9B5AE; --mint:#8CCFAD; --mint-strong:#A3DABE; --teal:#3E9B91; --teal-text:#2F7A73;
+  --gold:#D6A64F; --gold-text:#8A6420; --error:#A3332D; --ease-out:cubic-bezier(.22,1,.36,1);
+  /* Alias que usa la aplicación */
+  --bg:var(--white); --surface:var(--paper); --surface-2:#EEF2EE; --ink:var(--carbon); --muted:var(--slate); --line:var(--gray-light);
+  --ml:var(--green); --cd:var(--teal-text); --gia:var(--gold-text);
+  --c-can:#D6A64F; --c-ent:#3E9B91; --c-fac:#245B45; --c-pro:#7FB89A; --c-ser:#66736C;
+  --share:#B9C2BC; --leak:var(--error); --ok:var(--green-logo);
+  --code-bg:var(--green-night); --code-ink:#E3EAE5;
+  --f-display:'Montserrat', 'Trebuchet MS', Arial, sans-serif;
+  --f-body:'Open Sans', 'Segoe UI', Arial, sans-serif;
+  --f-mono:ui-monospace, 'Cascadia Code', Consolas, 'Courier New', monospace;
+  --r:14px;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:28px 64px;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.1;text-wrap:balance;margin:0}
+h1{font-size:clamp(32px,5vw,56px);font-weight:800;letter-spacing:-.02em;color:var(--green-deep)}
+h2{font-size:clamp(26px,3.4vw,36px);font-weight:800;letter-spacing:-.01em;color:var(--green-deep)}
+h3{font-size:21px;font-weight:700}
+p{margin:0}
+.eyebrow{font-family:var(--f-display);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.fig{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-display);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--green);margin:0}
+.fig::before{content:'';width:9px;height:9px;border-radius:50%;background:var(--gold);flex:none}
+.fig b{font-weight:800}
+.underline-gold{background:linear-gradient(transparent 72%, rgba(214,166,79,.55) 72%, rgba(214,166,79,.55) 92%, transparent 92%);padding:0 .06em}
+.paper-grid{background-color:var(--white);background-image:linear-gradient(rgba(36,91,69,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(36,91,69,.07) 1px,transparent 1px);background-size:24px 24px}
+.notice{display:flex;gap:12px;align-items:flex-start;background:var(--paper);border:1px solid var(--line-2);border-left:4px solid var(--gold);border-radius:12px;padding:12px 16px;font-size:14.5px;color:var(--carbon);max-width:72ch}
+.notice b{font-family:var(--f-display)}
+.backlink{font-family:var(--f-display);font-weight:700;font-size:14px;color:var(--green);text-decoration:none;display:inline-flex;gap:8px;align-items:center;min-height:32px}
+.backlink:hover{text-decoration:underline}
+
+.lead{font-size:17.5px;color:var(--muted);max-width:64ch}
+.mono{font-family:var(--f-mono)}
+.tab-num{font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-display);font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.chip.ml{color:var(--ml)} .chip.cd{color:var(--cd)} .chip.gia{color:var(--gia)} .chip.ins{color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:8px 16px;border-radius:999px;border:1.5px solid var(--green);background:var(--paper);color:var(--green);cursor:pointer;font-family:var(--f-display);font-size:13.5px;font-weight:700;transition:transform .2s var(--ease-out)}
+.btn:hover{transform:translateY(-1px)}
+.btn.primary{background:var(--green);color:var(--white);border-color:var(--green)}
+.btn[aria-pressed="true"]{background:var(--green);color:var(--white);border-color:var(--green)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+/* Header */
+.hero-band{padding:clamp(20px,3vw,32px);border:1px solid var(--line-2);border-radius:var(--r)}
+header.hero{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:32px;align-items:end}
+header.hero .meta{display:flex;flex-direction:column;gap:14px}
+.scoreline{display:flex;flex-direction:column;gap:10px;background:var(--green-night);color:var(--on-dark);border-radius:var(--r);padding:20px 22px}
+.scoreline .eyebrow{color:var(--mint-strong)}
+.scoreline small{color:var(--on-dark)!important}
+.scoreline .step{display:grid;grid-template-columns:86px 1fr;gap:12px;align-items:baseline}
+.scoreline .num{font-family:var(--f-display);font-size:34px;font-weight:800;font-variant-numeric:tabular-nums}
+.scoreline .num{color:var(--white)}
+.scoreline .num.leak{color:#F08C84;text-decoration:line-through;text-decoration-thickness:3px}
+.scoreline small{color:var(--muted);font-size:14px}
+@media (max-width:820px){header.hero{grid-template-columns:1fr}}
+
+section{display:flex;flex-direction:column;gap:20px}
+.lab,.map-card,.term,.stat{border-color:var(--line-2)}
+.sec-head{display:flex;flex-direction:column;gap:8px}
+
+/* Archivos */
+.files{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.fgroup{display:flex;flex-direction:column;gap:8px}
+.fgroup h3{font-size:15px;font-family:var(--f-body);font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.file{display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:center;text-align:left;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;min-width:0}
+.file:hover{border-color:var(--ink);transform:translateY(-1px)}
+.file .ext{font-family:var(--f-mono);font-size:11px;font-weight:600;display:grid;place-items:center;height:36px;border-radius:8px;background:var(--surface-2);color:var(--muted);text-transform:uppercase}
+.file .nm{font-size:13.5px;font-weight:600;overflow-wrap:anywhere;line-height:1.3}
+.file .sz{font-size:12px;color:var(--muted)}
+
+/* Mapa */
+.map-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px}
+.map-scroll{overflow-x:auto}
+.map-scroll svg{display:block;min-width:900px;width:100%;height:auto}
+.node{cursor:pointer}
+.node rect.box{fill:var(--surface);stroke:var(--line);stroke-width:1.5;transition:stroke .3s, fill .3s}
+.node:hover rect.box,.node:focus-visible rect.box{stroke:var(--ink)}
+.node.active rect.box{stroke:var(--gold);stroke-width:3;fill:#FBF6EA}
+.node text{fill:var(--ink);font-family:var(--f-body)}
+.node .t1{font-family:var(--f-display);font-weight:700;font-size:16px}
+.node .t2{font-size:12.5px;fill:var(--muted)}
+.node .stripe{transition:height .3s}
+.flow-path{fill:none;stroke:var(--line);stroke-width:3;stroke-dasharray:2 8;stroke-linecap:round}
+.flow-path.live{stroke:var(--muted);animation:dash 1.4s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-20}}
+.tour{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;border-top:1px solid var(--line);padding-top:14px}
+.tour .cap{display:flex;flex-direction:column;gap:4px;min-width:0}
+.tour .cap b{font-family:var(--f-display);font-size:19px}
+.tour .cap p{color:var(--muted);max-width:80ch}
+@media (max-width:700px){.tour{grid-template-columns:1fr}}
+
+/* Laboratorios */
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{min-height:40px;padding:8px 16px;border-radius:999px;border:1.5px solid var(--line-2);background:var(--paper);cursor:pointer;font-family:var(--f-display);font-size:13.5px;font-weight:700;color:var(--carbon)}
+.tabs button[aria-selected="true"]{background:var(--green);color:var(--white);border-color:var(--green)}
+.lab{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:24px}
+.lab .side{display:flex;flex-direction:column;gap:14px;min-width:0}
+.lab .stage{min-width:0;display:flex;flex-direction:column;gap:12px}
+.lab .side p{color:var(--muted)}
+.lab .side p b{color:var(--ink)}
+@media (max-width:860px){.lab{grid-template-columns:1fr}}
+.codebtn{align-self:flex-start}
+canvas{display:block;width:100%;border-radius:10px;background:var(--surface-2);touch-action:none}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat{background:var(--surface-2);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.stat .v{font-family:var(--f-display);font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat .k{font-size:12.5px;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:11px;height:11px;border-radius:50%;display:inline-block}
+select,input[type=text]{font:inherit;font-size:15px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);max-width:100%}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--ink)}
+
+/* TF-IDF */
+.tf-table{width:100%;border-collapse:collapse;font-size:14px}
+.tf-table th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line)}
+.tf-table td{padding:6px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;vertical-align:middle}
+.bar{height:12px;border-radius:6px;background:var(--ml);width:0;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.formula{font-family:var(--f-mono);font-size:13.5px;background:var(--surface-2);border-radius:8px;padding:10px 12px;overflow-x:auto;white-space:nowrap}
+
+/* n-gramas */
+.word-track{font-family:var(--f-mono);font-size:26px;letter-spacing:.06em;position:relative;display:inline-block;padding:6px 0;white-space:pre}
+.word-track .win{position:absolute;top:2px;bottom:2px;border:2px solid var(--cd);border-radius:6px;transition:left .18s, width .18s}
+.grams{display:flex;flex-wrap:wrap;gap:6px}
+.gram{font-family:var(--f-mono);font-size:13px;padding:2px 8px;border-radius:6px;background:var(--surface-2);white-space:pre;animation:pop .25s ease-out both}
+.gram.shared{background:var(--cd);color:var(--surface)}
+.gram.known{background:var(--ok);color:var(--surface)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.pair > div{display:flex;flex-direction:column;gap:8px;min-width:0}
+
+/* Matriz de confusión */
+.cm{border-collapse:separate;border-spacing:3px;font-variant-numeric:tabular-nums;font-size:14px}
+.cm th{font-size:12px;font-weight:600;color:var(--muted);padding:4px;text-align:center}
+.cm th.rl{text-align:right;padding-right:8px;cursor:pointer}
+.cm td{width:68px;height:46px;text-align:center;border-radius:6px;font-weight:600;cursor:pointer;transition:outline .2s}
+.cm td.sel{outline:3px solid var(--ink)}
+.cm-wrap{overflow-x:auto}
+.f1bars{display:flex;flex-direction:column;gap:8px}
+.f1bar{display:grid;grid-template-columns:100px 1fr 52px;gap:10px;align-items:center;font-size:14px}
+.f1bar .track{height:16px;background:var(--surface-2);border-radius:8px;position:relative;overflow:hidden}
+.f1bar .fill{position:absolute;inset:0 auto 0 0;width:0;border-radius:8px;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.f1bar.avg .fill{background:var(--ink)}
+
+/* Umbrales */
+.dots{display:grid;grid-template-columns:repeat(23,1fr);gap:4px;max-width:520px}
+.dots i{aspect-ratio:1;border-radius:50%;background:var(--surface-2);border:1.5px solid var(--c-can);transition:background .35s}
+.dots i.on{background:var(--c-can)}
+.split{display:flex;height:34px;border-radius:8px;overflow:hidden;font-size:13px;font-weight:600}
+.split div{display:flex;align-items:center;justify-content:center;transition:flex-basis .6s cubic-bezier(.2,.8,.2,1);white-space:nowrap;overflow:hidden;color:var(--surface)}
+
+/* Torneo */
+.race{display:flex;flex-direction:column;gap:10px}
+.race .r{display:grid;grid-template-columns:minmax(150px,280px) 1fr 56px;gap:12px;align-items:center;font-size:14px;transition:opacity .4s}
+.race .r .track{height:22px;background:var(--surface-2);border-radius:6px;overflow:hidden}
+.race .r .fill{height:100%;width:0;border-radius:6px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.race .r.leak .fill{background:repeating-linear-gradient(135deg,var(--leak) 0 8px,transparent 8px 14px) !important;border:2px solid var(--leak)}
+.race .r.hide{display:none}
+@media (max-width:560px){.race .r{grid-template-columns:1fr 56px}.race .r .track{grid-column:1/-1;grid-row:2}}
+
+/* Glosario */
+.gloss{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.term{text-align:left;padding:14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;display:flex;flex-direction:column;gap:6px}
+.term:hover{border-color:var(--green);transform:translateY(-2px)}
+.term{transition:transform .25s var(--ease-out)}
+.term b{font-family:var(--f-display);font-size:16px;color:var(--green-deep)}
+.term span{font-size:14px;color:var(--muted)}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(8,12,20,.55);display:flex;align-items:center;justify-content:center;padding:max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));z-index:50;animation:fade .2s ease-out}
+@keyframes fade{from{opacity:0}}
+.modal{background:var(--surface);color:var(--ink);border-radius:16px;width:min(920px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.35);animation:rise .25s cubic-bezier(.2,.8,.2,1)}
+@keyframes rise{from{transform:translateY(16px) scale(.98);opacity:0}}
+.modal header{padding:18px 20px 10px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
+.modal header .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.modal .x{border:none;background:var(--surface-2);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:20px;line-height:1;flex:none}
+.modal .mtabs{display:flex;gap:4px;flex-wrap:wrap}
+.modal .mtabs button{font-family:var(--f-display);border:none;background:none;padding:8px 12px;font-weight:600;font-size:14px;cursor:pointer;border-bottom:3px solid transparent;color:var(--muted)}
+.modal .mtabs button[aria-selected="true"]{color:var(--green);border-color:var(--gold)}
+.modal .body{padding:18px 20px 22px;overflow:auto;display:flex;flex-direction:column;gap:14px}
+.modal .body > *{flex-shrink:0}
+.modal .body p,.modal .body li{max-width:75ch}
+.modal .body ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.modal table.res{border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.modal table.res th,.modal table.res td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:left}
+.modal table.res th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.res-wrap{overflow-x:auto}
+.codecard{border-radius:10px;overflow:hidden;background:var(--code-bg);color:var(--code-ink)}
+.codecard .bar2{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 12px;font-size:12.5px;color:var(--mint-strong);border-bottom:1px solid #24493A;font-family:var(--f-display);font-weight:600}
+.codecard .bar2 button{background:#24493A;color:#E3EAE5;min-height:28px;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px}
+.codecard pre{margin:0;padding:14px;overflow-x:auto;font-family:var(--f-mono);font-size:13px;line-height:1.55;tab-size:4}
+.note{font-size:13.5px;color:var(--muted);border-left:3px solid var(--line);padding-left:10px}
+.py-k{color:#A3DABE;font-weight:600}.py-s{color:#E8C27A}.py-c{color:#8FA59A;font-style:italic}.py-n{color:#F0B98A}
+footer{background:var(--green-night);color:var(--on-dark);border-radius:var(--r);padding:28px 24px;font-size:14px;display:flex;flex-direction:column;gap:10px}
+footer .slogan{font-family:var(--f-display);font-weight:800;font-size:clamp(24px,3.6vw,36px);color:var(--white);line-height:1.1}
+footer a{color:var(--mint-strong)}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero-band paper-grid">
+  <header class="hero">
+    <div class="meta">
+      <a class="backlink" href="/es/proyectos/mensajes-de-cancelacion/"><span aria-hidden="true">←</span> Volver al caso</a>
+      <p class="fig"><span><b>Fig. 00</b> · Sebas Padilla Lab · Machine Learning</span></p>
+      <h1>Torneo de representaciones <span class="underline-gold">textuales</span></h1>
+      <p class="lead">¿Qué representación del texto clasifica mejor 1.200 mensajes de clientes en cinco categorías y detecta a tiempo los que anuncian una cancelación? Recorre el flujo, juega con cada concepto y abre el código de Python de cada paso.</p>
+      <p class="notice" role="note"><span><b>Ejercicio académico.</b> Los datos son sintéticos y la información es de carácter académico: no contiene datos personales, privados ni de ninguna empresa.</span></p>
+      <div class="row">
+        <span class="chip ml">Especialista ML</span><span class="chip cd">Ciencia de Datos</span><span class="chip gia">Gerencia IA</span>
+      </div>
+      <p style="font-size:14px;color:var(--muted)">Equipo: Juan David Gonzalez · Nelsón Fabian Manios · Sebastián Padilla Castaño</p>
+    </div>
+    <div class="scoreline" aria-label="Resumen del resultado">
+      <p class="eyebrow">El ejercicio en tres números (F1 macro)</p>
+      <div class="step"><span class="num leak">1,00</span><small>Partición al azar: el modelo memorizaba frases repetidas.</small></div>
+      <div class="step"><span class="num">0,21</span><small>TF-IDF de palabras con frases nunca vistas: casi el azar (0,20).</small></div>
+      <div class="step"><span class="num" style="color:var(--gold)">0,47</span><small>Campeón: TF-IDF de n-gramas de caracteres.</small></div>
+    </div>
+  </header>
+  </div>
+
+
+  <section id="mapa">
+    <div class="sec-head">
+      <p class="fig"><span><b>Fig. 01</b> · Mapa del ejercicio</span></p>
+      <h2>De 1.200 mensajes a una <span class="underline-gold">decisión</span></h2>
+      <p class="lead">Cada punto que viaja es un mensaje, con el color de su categoría. Haz clic en una etapa para ver la explicación y su código, o inicia el recorrido guiado.</p>
+    </div>
+    <div class="map-card">
+      <div class="legend" id="catLegend"></div>
+      <div class="map-scroll"><svg id="flow" viewBox="0 0 1240 450" role="img" aria-label="Flujo del ejercicio en nueve etapas"></svg></div>
+      <div class="tour">
+        <div class="cap" aria-live="polite"><span class="eyebrow" id="tourStep">Recorrido guiado</span><b id="tourTitle">Pulsa “Iniciar recorrido”</b><p id="tourText">El recorrido resalta cada etapa del flujo en orden y explica qué se hizo y qué se encontró.</p></div>
+        <div class="row">
+          <button class="btn" id="tourPrev" aria-label="Etapa anterior">←</button>
+          <button class="btn primary" id="tourPlay">Iniciar recorrido</button>
+          <button class="btn" id="tourNext" aria-label="Etapa siguiente">→</button>
+          <button class="btn" id="tourOpen">Ver código</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="labs">
+    <div class="sec-head">
+      <p class="fig"><span><b>Fig. 02</b> · Conceptos en movimiento</span></p>
+      <h2>Ocho laboratorios para entender cada <span class="underline-gold">término</span></h2>
+      <p class="lead">Todos usan los datos del ejercicio. Cada laboratorio tiene un botón para abrir el código de Python que produjo ese resultado.</p>
+    </div>
+    <div class="tabs" role="tablist" id="labTabs"></div>
+    <div id="labHost"></div>
+  </section>
+
+  <section id="glosario">
+    <div class="sec-head">
+      <p class="fig"><span><b>Fig. 03</b> · Glosario</span></p>
+      <h2>Términos del ejercicio</h2>
+      <p class="lead">Definiciones cortas. Cada tarjeta abre una explicación propia y el fragmento de código donde se usa el término.</p>
+    </div>
+    <div class="gloss" id="gloss"></div>
+  </section>
+
+  <footer>
+    <p class="slogan">De los datos a las decisiones.</p>
+    <p><b>Ejercicio académico.</b> Datos sintéticos de práctica: la información es de carácter académico, no personal ni privada. Equipo: Juan David Gonzalez, Nelsón Fabian Manios y Sebastián Padilla Castaño.</p>
+    <p>Las métricas usan validación agrupada por frase base (StratifiedGroupKFold, 4 pliegues). Los embeddings se entrenaron con una implementación en numpy del mismo algoritmo de gensim; la vista 3D es un PCA de los vectores.</p>
+    <p><a href="/es/proyectos/mensajes-de-cancelacion/">Leer el caso completo</a> · <a href="/es/proyectos/">Ver más proyectos</a> · © 2026 Sebas Padilla Lab</p>
+  </footer>
+</div>
+
+<div id="modalRoot"></div>
+
+<!-- ======================= CÓDIGO PYTHON DEL NOTEBOOK ======================= -->
+<script type="text/plain" id="py-carga" data-title="Carga y auditoría inicial">
+import re, unicodedata, time, numpy as np, pandas as pd, matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split, cross_validate
+from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, ConfusionMatrixDisplay, f1_score
+df = pd.read_csv('datos/interacciones_clientes.csv'); df.head()
+
+# 1. Auditoría
+display(df.info()); display(df.isna().sum()); display(df.categoria.value_counts(normalize=True));
+df['n_chars']=df.texto.str.len(); df.groupby('canal').n_chars.describe()
+</script>
+<script type="text/plain" id="py-frase" data-title="Frase base: cuántos mensajes son la misma frase (Actividad A)">
+def frase_base(s):
+    s = s.lower()
+    s = re.sub(r'visita https?://\S+|correo \S+@\S+', ' ', s)   # plantillas de URL / correo
+    s = re.sub(r'\bx\b', 'por', s).replace('paqte', 'paquete')  # typos conocidos
+    s = re.sub(r'[^\wáéíóúñü ]', ' ', s)                         # emojis y puntuación
+    return re.sub(r'\s+', ' ', s).strip()
+
+df['grupo'] = df.texto.map(frase_base)
+print(f"Filas: {len(df)} | textos únicos: {df.texto.nunique()} | frases base: {df.grupo.nunique()}")
+df.groupby(['categoria', 'grupo']).size().rename('n').reset_index()
+</script>
+<script type="text/plain" id="py-arnes" data-title="Arnés A/B: partición aleatoria vs. por grupo (Actividad A)">
+CLASE_CRITICA = 'Cancelación'
+
+def _pipe(vect_kw, clf_kw):
+    kw = dict(analyzer='word', ngram_range=(1, 2), min_df=2, sublinear_tf=True); kw.update(vect_kw or {})
+    ck = dict(max_iter=1500, class_weight='balanced'); ck.update(clf_kw or {})
+    return Pipeline([('tfidf', TfidfVectorizer(**kw)), ('clf', LogisticRegression(**ck))])
+
+def evaluar(prep=None, vect_kw=None, clf_kw=None, data=None):
+    d = (data if data is not None else df).copy()
+    X = d.texto_norm.map(prep) if prep else d.texto_norm
+    y, g = d.categoria, d.grupo
+    Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=.25, random_state=42, stratify=y)
+    p = _pipe(vect_kw, clf_kw).fit(Xtr, ytr).predict(Xte)
+    res = {'F1_aleat': f1_score(yte, p, average='macro'),
+           'F1crit_aleat': f1_score(yte, p, labels=[CLASE_CRITICA], average='macro')}
+    f1s, f1c = [], []
+    for tr, te in StratifiedGroupKFold(n_splits=4, shuffle=True, random_state=42).split(X, y, g):
+        p = _pipe(vect_kw, clf_kw).fit(X.iloc[tr], y.iloc[tr]).predict(X.iloc[te])
+        f1s.append(f1_score(y.iloc[te], p, average='macro'))
+        f1c.append(f1_score(y.iloc[te], p, labels=[CLASE_CRITICA], average='macro', zero_division=0))
+    res.update({'F1_grupo': np.mean(f1s), 'F1crit_grupo': np.mean(f1c)})
+    return res
+
+AB = []
+def ab(id_, nombre, A, B):
+    """A y B son dicts con argumentos para evaluar()."""
+    ra, rb = evaluar(**A), evaluar(**B)
+    for var, r in (('A', ra), ('B', rb)):
+        AB.append({'id': id_, 'problema': nombre, 'variante': var, **{k: round(v, 3) for k, v in r.items()}})
+    return pd.DataFrame(AB[-2:])
+</script>
+<script type="text/plain" id="py-p1" data-title="P1 · Duplicados y fuga entre train y test">
+Xtr, Xte, ytr, yte = train_test_split(df.texto_norm, df.categoria, test_size=.25, random_state=42, stratify=df.categoria)
+print(f"Test con texto idéntico en train: {Xte.isin(set(Xtr)).mean():.0%}")
+print(f"Test con la misma frase base en train: {df.loc[Xte.index,'grupo'].isin(set(df.loc[Xtr.index,'grupo'])).mean():.0%}")
+ab('P1', 'Partición aleatoria vs por grupo', A={}, B={})  # misma config: la diferencia está entre columnas *_aleat y *_grupo
+</script>
+<script type="text/plain" id="py-limpieza" data-title="P2, P3, P4 y P6 · Normalización, PII, URL, emojis y typos">
+def normalizar(s):
+    s=unicodedata.normalize('NFC',str(s))
+    s=re.sub(r'https?://\S+',' URL ',s)
+    s=re.sub(r'[\w.%-]+@[\w.-]+\.[A-Za-z]{2,}',' EMAIL ',s)
+    s=re.sub(r'\s+',' ',s).strip()
+    return s
+df['texto_norm']=df.texto.map(normalizar)
+
+# P2 · PII: el número del correo coincide con el id del cliente
+m = df.texto.str.extract(r'cliente(\d+)@')[0].dropna().astype(int)
+print(f"Mensajes con correo: {len(m)} | número == id: {(m.values == df.loc[m.index,'id'].values).mean():.0%}")
+sin_pii = lambda s: re.sub(r'\s+', ' ', re.sub(r'correo\s+EMAIL', ' ', s)).strip()
+
+# P3 · URL de plantilla
+sin_url = lambda s: re.sub(r'\s+', ' ', re.sub(r'(visita\s+)?\bURL\b', ' ', s)).strip()
+
+# P4 · Emojis y puntuación expresiva
+expr = lambda s: re.sub(r'\s+', ' ', re.sub(r'[!?.]{2,}', ' ', s.replace('😕', ' EMO_NEG '))).strip()
+
+# P6 · Errores y abreviaturas
+DIC = {r'\bx\b': 'por', r'\bpaqte\b': 'paquete'}
+def corrige(s):
+    for p, r in DIC.items(): s = re.sub(p, r, s)
+    return s
+
+# Texto limpio usado en las actividades B, C y D
+limpiar = lambda s: corrige(expr(sin_url(sin_pii(s))))
+df['texto_limpio'] = df.texto_norm.map(limpiar)
+</script>
+<script type="text/plain" id="py-p7" data-title="P7 · Negación y stopwords">
+print(f"Mensajes con 'no': {df.texto.str.contains(r'(?i)\bno\b').mean():.0%}")
+print(pd.crosstab(df.categoria, df.texto.str.contains(r'(?i)\bno\b')).rename(columns={False:'sin no',True:'con no'}))
+STOP_ES = ['de','la','que','el','en','y','a','los','se','del','las','un','por','con','no','una','su','para','es','al','lo','como','mi','me','este','ha']
+ab('P7', "Stopwords: lista genérica (sin 'no') vs lista que conserva 'no'",
+   A={'vect_kw': {'stop_words': STOP_ES}},
+   B={'vect_kw': {'stop_words': [w for w in STOP_ES if w != 'no']}})
+</script>
+<script type="text/plain" id="py-p8" data-title="P8 · Desbalance y clase crítica">
+print(df.categoria.value_counts(normalize=True).round(3).to_dict())
+ab('P8', 'Desbalance: sin pesos vs class_weight=balanced', A={'clf_kw': {'class_weight': None}}, B={})
+</script>
+<script type="text/plain" id="py-p9" data-title="P9 · Fuga por metadatos (prioridad)">
+display(pd.crosstab(df.categoria, df.prioridad))
+display(pd.crosstab(df.canal, df.categoria, normalize='index').round(2))
+print('Satisfacción media por categoría:', df.groupby('categoria').satisfaccion.mean().round(2).to_dict())
+con_prio = df.assign(texto_norm=df.prioridad + ' ' + df.texto_norm)
+ab('P9', 'Metadatos: solo texto vs texto + prioridad', A={}, B={'data': con_prio})
+</script>
+<script type="text/plain" id="py-p10" data-title="P10 · Corpus de embeddings contaminado">
+L = [l.strip() for l in open('datos/corpus_embeddings.txt', encoding='utf-8') if l.strip()]
+print(f"Líneas: {len(L)} | únicas: {len(set(L))}")
+print('Sufijos:', collections.Counter(' '.join(l.split()[-6:]) for l in L).most_common(5))
+core = {' '.join(l.split()[:-6]) for l in L}
+print(f"Frases base del dataset presentes en el corpus: {sum(g in core for g in df.grupo.unique())}/{df.grupo.nunique()}")
+vocab_corpus = {w for l in L for w in l.split()}
+tokens_ds = {w for t in df.texto_norm.str.lower() for w in re.findall(r'[a-záéíóúñü]+', t)} - {'email', 'url'}
+oov = sorted(w for w in tokens_ds if w not in vocab_corpus)
+print('OOV del dataset (sin PII):', oov)
+</script>
+<script type="text/plain" id="py-cv" data-title="Partición común y función del torneo (Actividad B)">
+# Partición común para B y C: los mismos 4 pliegues por frase base del arnés de la Actividad A
+y = df.categoria
+CV = list(StratifiedGroupKFold(n_splits=4, shuffle=True, random_state=42).split(df, y, df.grupo))
+CLASES = sorted(y.unique())
+
+def torneo(nombre, make_model, X):
+    """Evalúa make_model() en los pliegues comunes. Guarda probabilidades fuera de pliegue para la Actividad D."""
+    oof, f1s, f1c = np.zeros((len(X), len(CLASES))), [], []
+    t0 = time.perf_counter()
+    for tr, te in CV:
+        m = make_model().fit(X.iloc[tr], y.iloc[tr])
+        oof[te] = m.predict_proba(X.iloc[te])
+        p = m.predict(X.iloc[te])
+        f1s.append(f1_score(y.iloc[te], p, average='macro'))
+        f1c.append(f1_score(y.iloc[te], p, labels=[CLASE_CRITICA], average='macro', zero_division=0))
+    seg = time.perf_counter() - t0
+    m = make_model().fit(X, y)  # modelo final: tamaño y n.º de rasgos
+    pred = np.array(CLASES)[oof.argmax(1)]
+    f1_canal = {c: f1_score(y[df.canal == c], pred[df.canal == c], average='macro') for c in sorted(df.canal.unique())}
+    return {'representacion': nombre, 'F1_grupo': np.mean(f1s), 'F1crit_grupo': np.mean(f1c),
+            'F1_pliegue_min': np.min(f1s), 'F1_pliegue_max': np.max(f1s),
+            'F1_peor_canal': min(f1_canal.values()), 'segundos': seg,
+            'n_features': m[:-1].transform(X.iloc[:1]).shape[1], 'memoria_KB': len(pickle.dumps(m)) / 1024,
+            'oof': oof, 'f1_canal': f1_canal}
+</script>
+<script type="text/plain" id="py-tfidf" data-title="Torneo disperso: cuatro variantes TF-IDF (Actividad B)">
+def tfidf(**kw):
+    base = dict(analyzer='word', ngram_range=(1, 2), min_df=2, sublinear_tf=True); base.update(kw)
+    return TfidfVectorizer(**base)
+clf = lambda: LogisticRegression(max_iter=1500, class_weight='balanced')
+
+modelos_B = {
+    'TF-IDF palabras': (lambda: Pipeline([('vec', tfidf()), ('clf', clf())]), df.texto_limpio),
+    'TF-IDF caracteres': (lambda: Pipeline([('vec', tfidf(analyzer='char_wb', ngram_range=(3, 5))), ('clf', clf())]), df.texto_limpio),
+    'TF-IDF lemas': (lambda: Pipeline([('vec', tfidf()), ('clf', clf())]), df.texto_lema),
+    'TF-IDF palabras + caracteres': (lambda: Pipeline([('vec', FeatureUnion([('w', tfidf()), ('c', tfidf(analyzer='char_wb', ngram_range=(3, 5)))])),
+                                                       ('clf', clf())]), df.texto_limpio),
+}
+RES = {n: torneo(n, mk, X) for n, (mk, X) in modelos_B.items()}
+COLS = ['representacion', 'F1_grupo', 'F1crit_grupo', 'F1_pliegue_min', 'F1_pliegue_max', 'F1_peor_canal', 'segundos', 'n_features', 'memoria_KB']
+tabla_B = pd.DataFrame([RES[n] for n in modelos_B])[COLS].sort_values('F1_grupo', ascending=False).round(3)
+tabla_B
+</script>
+<script type="text/plain" id="py-lemas" data-title="Variante con lematización (Actividad B)">
+# Lematización por diccionario + regla de plural (spaCy no está disponible en el entorno).
+# Verbos al infinitivo; adjetivos y artículos al masculino singular.
+LEMAS = {'cobraron': 'cobrar', 'confirmen': 'confirmar', 'cambien': 'cambiar', 'dejó': 'dejar', 'deseo': 'desear',
+         'entregado': 'entregar', 'llegado': 'llegar', 'llegó': 'llegar', 'recibida': 'recibir', 'recibí': 'recibir',
+         'reconozco': 'reconocer', 'responden': 'responder', 'quiero': 'querer', 'solicito': 'solicitar',
+         'necesito': 'necesitar', 'permite': 'permitir', 'tiene': 'tener', 'fue': 'ser', 'figura': 'figurar',
+         'corresponde': 'corresponder', 'ha': 'haber', 'veces': 'vez', 'incompleta': 'incompleto',
+         'inmediata': 'inmediato', 'clara': 'claro', 'rápida': 'rápido', 'una': 'uno', 'un': 'uno', 'la': 'el'}
+def lematizar(s):
+    return ' '.join(LEMAS.get(t, re.sub(r'(?<=\w{3})s$', '', t)) for t in re.findall(r'\w+', s.lower()))
+df['texto_lema'] = df.texto_limpio.map(lematizar)
+</script>
+<script type="text/plain" id="py-report" data-title="Resultado por clase del mejor modelo disperso (Actividad B)">
+mejor_B = tabla_B.representacion.iloc[0]
+pred_B = np.array(CLASES)[RES[mejor_B]['oof'].argmax(1)]
+print(f'Mejor representación dispersa: {mejor_B}\n')
+print(classification_report(y, pred_B, zero_division=0))
+pd.crosstab(y, pred_B, rownames=['real'], colnames=['predicho'])
+</script>
+<script type="text/plain" id="py-emb" data-title="Entrenar Word2Vec y fastText con dos corpus (Actividad C)">
+def entrenar(sentences, tipo, epochs=30):
+    """Devuelve los vectores (KeyedVectors) de Word2Vec o fastText."""
+    if GENSIM:
+        if tipo == 'fasttext':
+            return FastText(sentences=sentences, vector_size=50, window=5, min_count=1, min_n=3, max_n=5, bucket=20_000,
+                            workers=1, epochs=epochs, seed=42).wv
+        return Word2Vec(sentences=sentences, vector_size=50, window=5, min_count=1, workers=1, epochs=epochs, seed=42).wv
+    return SGNS(sentences, epochs=epochs, subword=(tipo == 'fasttext'))
+
+tok = lambda s: re.findall(r'\w+', s.lower())
+
+# Corpus original (tal como se entregó) y corpus limpio: sin el sufijo etiqueta + 5 tokens constantes, deduplicado
+corpus_orig = [l.split() for l in L]
+corpus_limpio = sorted({tuple(l.split()[:-6]) for l in L})
+print(f'Corpus original: {len(corpus_orig)} líneas | limpio: {len(corpus_limpio)} frases únicas')
+
+exploracion = [list(s) for s in corpus_limpio] + [tok(t) for t in df.texto_limpio.unique()]
+kv = {('Word2Vec', 'original'): entrenar(corpus_orig, 'word2vec'),
+      ('fastText', 'original'): entrenar(corpus_orig, 'fasttext'),
+      # Solo para explorar el espacio; para evaluar se reentrena por pliegue más abajo
+      ('Word2Vec', 'limpio'): entrenar(exploracion, 'word2vec', epochs=100),
+      ('fastText', 'limpio'): entrenar(exploracion, 'fasttext', epochs=100)}
+</script>
+<script type="text/plain" id="py-sgns" data-title="Skip-gram con muestreo negativo en numpy (respaldo de gensim)">
+class SGNS:
+    """Skip-gram con muestreo negativo en numpy, de respaldo si gensim no se puede instalar.
+    Con subword=True cada palabra es la suma de sus n-gramas de caracteres, como en fastText,
+    y una palabra OOV se representa con los n-gramas que sí conoce."""
+    def __init__(self, sentences, vector_size=50, window=5, negative=5, epochs=30, alpha=0.025,
+                 subword=False, min_n=3, max_n=5, seed=42):
+        rng = np.random.default_rng(seed)
+        cnt = collections.Counter(w for s in sentences for w in s)
+        self.index_to_key = sorted(cnt, key=lambda w: -cnt[w])
+        self.key_to_index = {w: i for i, w in enumerate(self.index_to_key)}
+        self.vector_size, self.subword, self.min_n, self.max_n = vector_size, subword, min_n, max_n
+        V, self.ngram_index = len(self.index_to_key), {}
+        unidades = [[i] for i in range(V)]
+        if subword:
+            for i, w in enumerate(self.index_to_key):
+                unidades[i] += [V + self.ngram_index.setdefault(g, len(self.ngram_index)) for g in self._ngramas(w)]
+        self.W_in = (rng.random((V + len(self.ngram_index), vector_size)) - .5) / vector_size
+        W_out = np.zeros((V, vector_size))
+        p = np.array([cnt[w] for w in self.index_to_key]) ** .75
+        tabla_neg = rng.choice(V, 100_000, p=p / p.sum())
+        sents = [[self.key_to_index[w] for w in s] for s in sentences]
+        total, paso = epochs * len(sents), 0
+        for _ in range(epochs):
+            for s in sents:
+                lr = alpha * max(1 - paso / total, 1e-4); paso += 1
+                for pos, c in enumerate(s):
+                    b = rng.integers(1, window + 1)
+                    ctx = s[max(0, pos - b):pos] + s[pos + 1:pos + 1 + b]
+                    if not ctx: continue
+                    ids = unidades[c]
+                    h = self.W_in[ids].mean(0)
+                    tgt = np.r_[ctx, tabla_neg[rng.integers(0, len(tabla_neg), len(ctx) * negative)]]
+                    lab = np.r_[np.ones(len(ctx)), np.zeros(len(ctx) * negative)]
+                    g = (lab - 1 / (1 + np.exp(-W_out[tgt] @ h))) * lr
+                    dh = g @ W_out[tgt]
+                    np.add.at(W_out, tgt, np.outer(g, h))
+                    self.W_in[ids] += dh
+        self.vectors = np.vstack([self.W_in[u].mean(0) for u in unidades])
+
+    def _ngramas(self, w):
+        w = f'<{w}>'
+        return [w[i:i + n] for n in range(self.min_n, self.max_n + 1) for i in range(len(w) - n + 1)]
+
+    def __getitem__(self, w):
+        if w in self.key_to_index:
+            return self.vectors[self.key_to_index[w]]
+        ids = [len(self.index_to_key) + self.ngram_index[g] for g in self._ngramas(w) if g in self.ngram_index] if self.subword else []
+        if not ids:
+            raise KeyError(f"'{w}' no está en el vocabulario")
+        return self.W_in[ids].mean(0)
+
+    def most_similar(self, w, topn=5):
+        v = self[w]
+        M = self.vectors / np.linalg.norm(self.vectors, axis=1, keepdims=True)
+        sims = M @ (v / np.linalg.norm(v))
+        orden = [i for i in np.argsort(-sims) if self.index_to_key[i] != w][:topn]
+        return [(self.index_to_key[i], float(sims[i])) for i in orden]
+</script>
+<script type="text/plain" id="py-vecinos" data-title="Vecinos de términos del dominio y cobertura OOV (Actividad C)">
+TERMINOS = ['factura', 'cobro', 'cancelar', 'entrega', 'garantía', 'servicio']
+vecinos = pd.DataFrame({f'{m} ({c})': [', '.join(w for w, _ in v.most_similar(t, topn=4)) if t in v.key_to_index else 'OOV'
+                                       for t in TERMINOS] for (m, c), v in kv.items()}, index=TERMINOS)
+display(vecinos)
+
+# Cobertura OOV: tokens del dataset que el vocabulario de cada modelo no contiene
+tokens = [w for t in df.texto_limpio for w in tok(t)]
+tipos = sorted(set(tokens))
+for (m, c), v in kv.items():
+    oov = [w for w in tipos if w not in v.key_to_index]
+    print(f'{m} ({c}): cobertura de tokens {np.mean([w in v.key_to_index for w in tokens]):.1%} | tipos OOV: {oov}')
+
+# Palabras con ruido o variantes que nunca se vieron: Word2Vec no las puede representar, fastText usa sus n-gramas
+for w in ['facturacionn', 'paqte', 'cancelacion', 'reembolso']:
+    for m in ['Word2Vec', 'fastText']:
+        try:
+            print(f"{w:>13} | {m:8} (original): {[x for x, _ in kv[(m, 'original')].most_similar(w, topn=3)]}")
+        except KeyError:
+            print(f'{w:>13} | {m:8} (original): OOV, sin vector')
+</script>
+<script type="text/plain" id="py-docvec" data-title="Vector de documento: promedio de embeddings (Actividad C)">
+class PromedioEmbeddings(BaseEstimator, TransformerMixin):
+    """Documento = promedio de los vectores de sus palabras (cero si ninguna tiene vector).
+    Con kv=None entrena los vectores en fit, solo con los textos del pliegue de entrenamiento."""
+    def __init__(self, tipo='word2vec', kv=None, epochs=100):
+        self.tipo, self.kv, self.epochs = tipo, kv, epochs
+    def fit(self, X, y=None):
+        self.kv_ = self.kv if self.kv is not None else entrenar([list(s) for s in sorted({tuple(tok(t)) for t in X})], self.tipo, self.epochs)
+        return self
+    def transform(self, X):
+        filas = []
+        for t in X:
+            vs = []
+            for w in tok(t):
+                try: vs.append(self.kv_[w])
+                except KeyError: pass
+            filas.append(np.mean(vs, 0) if vs else np.zeros(self.kv_.vector_size))
+        return np.vstack(filas)
+
+emb = lambda **kw: (lambda: Pipeline([('vec', PromedioEmbeddings(**kw)), ('clf', clf())]))
+modelos_C = {
+    'Word2Vec promedio (corpus original)': emb(tipo='word2vec', kv=kv[('Word2Vec', 'original')]),
+    'fastText promedio (corpus original)': emb(tipo='fasttext', kv=kv[('fastText', 'original')]),
+    'Word2Vec promedio (limpio, por pliegue)': emb(tipo='word2vec'),
+    'fastText promedio (limpio, por pliegue)': emb(tipo='fasttext'),
+}
+RES.update({n: torneo(n, mk, df.texto_limpio) for n, mk in modelos_C.items()})
+tabla_C = pd.DataFrame([RES[n] for n in modelos_C])[COLS].round(3)
+tabla_C
+</script>
+<script type="text/plain" id="py-matriz" data-title="Matriz comparativa y elección del campeón (Actividad D)">
+INTERP = {'TF-IDF palabras': 5, 'TF-IDF lemas': 5, 'TF-IDF caracteres': 3, 'TF-IDF palabras + caracteres': 3}
+FUGA = {n for n in RES if 'corpus original' in n}
+matriz = pd.DataFrame([RES[n] for n in RES])[COLS]
+matriz['interpretabilidad_1a5'] = matriz.representacion.map(INTERP).fillna(2).astype(int)
+# Robustez por canal en escala 1-5 a partir de la brecha entre el F1 medio y el del peor canal
+brecha = (matriz.F1_grupo - matriz.F1_peor_canal).clip(lower=0)
+matriz['robustez_canal_1a5'] = (5 - (brecha / .05).round()).clip(1, 5).astype(int)
+matriz['valida'] = ~matriz.representacion.isin(FUGA)
+matriz = matriz.sort_values(['valida', 'F1_grupo'], ascending=False).round(3)
+display(matriz)
+matriz.to_csv('tablas/matriz_comparativa.csv', index=False)
+
+# Campeón: entre las válidas, las que quedan a menos de 0,01 del mejor F1 empatan; gana la de menos rasgos
+validas = matriz[matriz.valida]
+empatadas = validas[validas.F1_grupo >= validas.F1_grupo.max() - .01]
+campeon = empatadas.sort_values('n_features').representacion.iloc[0]
+print(f'Empatadas: {empatadas.representacion.tolist()} -> campeón: {campeon}')
+</script>
+<script type="text/plain" id="py-umbral" data-title="Umbrales: alerta de Cancelación y autoclasificación (Actividad D)">
+P = RES[campeon]['oof']
+pred = np.array(CLASES)[P.argmax(1)]
+real_c = (y == CLASE_CRITICA).values
+p_c = P[:, CLASES.index(CLASE_CRITICA)]
+
+# 1) Alerta de Cancelación: se alerta si P(Cancelación) >= umbral, aunque no sea la clase más probable
+filas = []
+for u in np.arange(.05, .55, .05).round(2):
+    alerta = p_c >= u
+    filas.append({'umbral': u, 'mensajes_alertados': alerta.mean(),
+                  'precision': (alerta & real_c).sum() / max(alerta.sum(), 1), 'recall': (alerta & real_c).sum() / real_c.sum()})
+alertas = pd.DataFrame(filas)
+display(alertas.round(3))
+# Se prioriza no perder cancelaciones: el umbral más alto que conserva recall >= 0,75
+u_cancel = alertas[alertas.recall >= .75].umbral.max()
+print(f'Umbral de alerta de Cancelación: {u_cancel} -> {alertas.set_index("umbral").loc[u_cancel].round(3).to_dict()}\n')
+
+# 2) Autoclasificación: solo si la confianza máxima supera el umbral; el resto va a un agente
+conf = P.max(1)
+filas = []
+for u in np.arange(.3, .95, .1).round(1):
+    auto = conf >= u
+    filas.append({'umbral': u, 'cobertura_automatica': auto.mean(),
+                  'exactitud_automatica': (pred == y.values)[auto].mean() if auto.any() else np.nan})
+cobertura = pd.DataFrame(filas)
+display(cobertura.round(3))
+ok = cobertura[cobertura.exactitud_automatica >= .9]
+u_auto = ok.umbral.min() if len(ok) else None
+print(f'Umbral de autoclasificación (exactitud >= 90 %): {u_auto} -> cobertura {ok.cobertura_automatica.max() if len(ok) else 0:.1%}')
+</script>
+<script type="text/plain" id="py-ruta" data-title="Regla de enrutamiento del piloto (propuesta)">
+# Ilustración de cómo se aplicarían los dos umbrales del comité a un mensaje nuevo.
+# Usa el campeón entrenado con todos los datos; no forma parte del análisis original.
+modelo = Pipeline([('vec', tfidf(analyzer='char_wb', ngram_range=(3, 5))), ('clf', clf())]).fit(df.texto_limpio, y)
+
+def enrutar(texto, u_cancel=0.15, u_auto=0.70):
+    x = limpiar(normalizar(texto))
+    p = modelo.predict_proba([x])[0]
+    clase, conf = CLASES[p.argmax()], p.max()
+    if p[CLASES.index(CLASE_CRITICA)] >= u_cancel:
+        return 'Cola de retención (revisión humana)', clase, round(conf, 2)
+    if conf >= u_auto:
+        return f'Enrutado automático a {clase}', clase, round(conf, 2)
+    return 'Agente clasifica (sugerencia del modelo)', clase, round(conf, 2)
+
+enrutar('quiero dar de baja mi plan!!!')
+</script>
+
+
+<script type="text/plain" id="py-g-bow" data-title="Ejemplo: bolsa de palabras con CountVectorizer (ejemplo ilustrativo)">
+from sklearn.feature_extraction.text import CountVectorizer
+
+frases = df.grupo.unique()                  # las 20 frases base
+bow = CountVectorizer()                     # solo conteos: sin IDF ni normalización
+X = bow.fit_transform(frases)
+pd.DataFrame(X.toarray(), columns=bow.get_feature_names_out(), index=frases).iloc[:3, :10]
+</script>
+<script type="text/plain" id="py-g-word12" data-title="N-gramas de palabras: unigramas y bigramas">
+# El valor por defecto de tfidf() es analyzer='word', ngram_range=(1, 2): unigramas y bigramas
+'TF-IDF palabras': (lambda: Pipeline([('vec', tfidf()), ('clf', clf())]), df.texto_limpio)
+</script>
+<script type="text/plain" id="py-g-char" data-title="N-gramas de caracteres char_wb 3–5">
+# El campeón: fragmentos de 3 a 5 caracteres dentro de cada palabra
+'TF-IDF caracteres': (lambda: Pipeline([('vec', tfidf(analyzer='char_wb', ngram_range=(3, 5))), ('clf', clf())]), df.texto_limpio)
+</script>
+<script type="text/plain" id="py-g-params" data-title="Parámetros del vectorizador">
+def tfidf(**kw):
+    base = dict(analyzer='word', ngram_range=(1, 2), min_df=2, sublinear_tf=True); base.update(kw)
+    return TfidfVectorizer(**base)
+# min_df=2       -> descarta términos que aparecen en menos de 2 textos de entrenamiento
+# sublinear_tf   -> usa 1 + log(tf) en lugar del conteo bruto
+# norm='l2'      -> valor por defecto: cada vector queda con longitud 1
+</script>
+<script type="text/plain" id="py-g-pipe" data-title="Pipeline: vectorizador + clasificador ajustados juntos">
+def _pipe(vect_kw, clf_kw):
+    kw = dict(analyzer='word', ngram_range=(1, 2), min_df=2, sublinear_tf=True); kw.update(vect_kw or {})
+    ck = dict(max_iter=1500, class_weight='balanced'); ck.update(clf_kw or {})
+    return Pipeline([('tfidf', TfidfVectorizer(**kw)), ('clf', LogisticRegression(**ck))])
+
+# En cada pliegue se crea un Pipeline nuevo y se ajusta solo con los datos de entrenamiento:
+for tr, te in CV:
+    m = make_model().fit(X.iloc[tr], y.iloc[tr])   # el vocabulario y el IDF salen solo de 'tr'
+    p = m.predict(X.iloc[te])
+</script>
+<script type="text/plain" id="py-g-cv" data-title="StratifiedGroupKFold por frase base">
+# Partición común para B y C: 4 pliegues, sin partir ninguna frase base, con proporción de clases parecida
+y = df.categoria
+CV = list(StratifiedGroupKFold(n_splits=4, shuffle=True, random_state=42).split(df, y, df.grupo))
+
+# Comparación con la partición al azar
+Xtr, Xte, ytr, yte = train_test_split(df.texto_norm, df.categoria, test_size=.25, random_state=42, stratify=df.categoria)
+print(f"Test con texto idéntico en train: {Xte.isin(set(Xtr)).mean():.0%}")
+</script>
+<script type="text/plain" id="py-g-ab" data-title="Función ab(): una prueba A/B">
+AB = []
+def ab(id_, nombre, A, B):
+    """A y B son dicts con argumentos para evaluar()."""
+    ra, rb = evaluar(**A), evaluar(**B)
+    for var, r in (('A', ra), ('B', rb)):
+        AB.append({'id': id_, 'problema': nombre, 'variante': var, **{k: round(v, 3) for k, v in r.items()}})
+    return pd.DataFrame(AB[-2:])
+
+# Ejemplo (P2): A = texto con EMAIL enmascarado, B = sin el bloque "correo EMAIL"
+ab('P2', 'PII: enmascarar EMAIL vs eliminar "correo EMAIL"', A={}, B={'prep': sin_pii})
+</script>
+<script type="text/plain" id="py-g-pii" data-title="PII: detectar y eliminar correos de clientes">
+s = re.sub(r'[\w.%-]+@[\w.-]+\.[A-Za-z]{2,}', ' EMAIL ', s)      # normalizar(): enmascara el correo
+
+m = df.texto.str.extract(r'cliente(\d+)@')[0].dropna().astype(int)
+print(f"Mensajes con correo: {len(m)} | número == id: {(m.values == df.loc[m.index,'id'].values).mean():.0%}")
+sin_pii = lambda s: re.sub(r'\s+', ' ', re.sub(r'correo\s+EMAIL', ' ', s)).strip()
+</script>
+<script type="text/plain" id="py-g-clf" data-title="Regresión logística balanceada">
+clf = lambda: LogisticRegression(max_iter=1500, class_weight='balanced')
+
+# P8: la misma regresión sin pesos (A) frente a balanceada (B)
+ab('P8', 'Desbalance: sin pesos vs class_weight=balanced', A={'clf_kw': {'class_weight': None}}, B={})
+</script>
+<script type="text/plain" id="py-g-pr" data-title="Precisión y recall de la alerta de Cancelación">
+for u in np.arange(.05, .55, .05).round(2):
+    alerta = p_c >= u
+    filas.append({'umbral': u, 'mensajes_alertados': alerta.mean(),
+                  'precision': (alerta & real_c).sum() / max(alerta.sum(), 1),   # aciertos / alertas
+                  'recall': (alerta & real_c).sum() / real_c.sum()})             # aciertos / cancelaciones reales
+</script>
+<script type="text/plain" id="py-g-f1" data-title="F1 macro y F1 de la clase crítica">
+f1s.append(f1_score(y.iloc[te], p, average='macro'))                                         # promedio simple de las 5 clases
+f1c.append(f1_score(y.iloc[te], p, labels=[CLASE_CRITICA], average='macro', zero_division=0))  # solo Cancelación
+...
+return {'representacion': nombre, 'F1_grupo': np.mean(f1s), 'F1crit_grupo': np.mean(f1c), ...}
+</script>
+<script type="text/plain" id="py-g-cm" data-title="Matriz de confusión">
+# Predicciones fuera de pliegue del mejor modelo disperso
+pred_B = np.array(CLASES)[RES[mejor_B]['oof'].argmax(1)]
+pd.crosstab(y, pred_B, rownames=['real'], colnames=['predicho'])
+</script>
+<script type="text/plain" id="py-g-ftng" data-title="fastText: n-gramas de caracteres y vector para palabras nuevas">
+def _ngramas(self, w):
+    w = f'<{w}>'
+    return [w[i:i + n] for n in range(self.min_n, self.max_n + 1) for i in range(len(w) - n + 1)]
+
+def __getitem__(self, w):
+    if w in self.key_to_index:
+        return self.vectors[self.key_to_index[w]]
+    ids = [len(self.index_to_key) + self.ngram_index[g] for g in self._ngramas(w) if g in self.ngram_index] if self.subword else []
+    if not ids:
+        raise KeyError(f"'{w}' no está en el vocabulario")
+    return self.W_in[ids].mean(0)
+</script>
+<script type="text/plain" id="py-g-oov" data-title="Cobertura OOV y palabras no vistas">
+tokens = [w for t in df.texto_limpio for w in tok(t)]
+tipos = sorted(set(tokens))
+for (m, c), v in kv.items():
+    oov = [w for w in tipos if w not in v.key_to_index]
+    print(f'{m} ({c}): cobertura de tokens {np.mean([w in v.key_to_index for w in tokens]):.1%} | tipos OOV: {oov}')
+
+for w in ['facturacionn', 'paqte', 'cancelacion', 'reembolso']:
+    for m in ['Word2Vec', 'fastText']:
+        try:
+            print(f"{w:>13} | {m:8} (original): {[x for x, _ in kv[(m, 'original')].most_similar(w, topn=3)]}")
+        except KeyError:
+            print(f'{w:>13} | {m:8} (original): OOV, sin vector')
+</script>
+<script type="text/plain" id="py-g-cos" data-title="Similitud coseno y vecinos">
+def most_similar(self, w, topn=5):
+    v = self[w]
+    M = self.vectors / np.linalg.norm(self.vectors, axis=1, keepdims=True)   # cada vector con longitud 1
+    sims = M @ (v / np.linalg.norm(v))                                       # producto punto = coseno
+    orden = [i for i in np.argsort(-sims) if self.index_to_key[i] != w][:topn]
+    return [(self.index_to_key[i], float(sims[i])) for i in orden]
+
+TERMINOS = ['factura', 'cobro', 'cancelar', 'entrega', 'garantía', 'servicio']
+vecinos = pd.DataFrame({f'{m} ({c})': [', '.join(w for w, _ in v.most_similar(t, topn=4)) if t in v.key_to_index else 'OOV'
+                                       for t in TERMINOS] for (m, c), v in kv.items()}, index=TERMINOS)
+</script>
+<script type="text/plain" id="py-g-fuga" data-title="Tres fugas detectadas">
+# Duplicados: el test ya estaba en entrenamiento
+print(f"Test con texto idéntico en train: {Xte.isin(set(Xtr)).mean():.0%}")
+
+# Metadato posterior al mensaje: la prioridad
+display(pd.crosstab(df.categoria, df.prioridad))
+con_prio = df.assign(texto_norm=df.prioridad + ' ' + df.texto_norm)
+ab('P9', 'Metadatos: solo texto vs texto + prioridad', A={}, B={'data': con_prio})
+
+# Etiqueta pegada en el corpus de embeddings
+print('Sufijos:', collections.Counter(' '.join(l.split()[-6:]) for l in L).most_common(5))
+</script>
+
+<script type="application/json" id="data">{"frases": [{"categoria": "Cancelación", "grupo": "confirmen la cancelación inmediata", "n": 28}, {"categoria": "Cancelación", "grupo": "no deseo renovar el plan", "n": 28}, {"categoria": "Cancelación", "grupo": "quiero cancelar la suscripción", "n": 31}, {"categoria": "Cancelación", "grupo": "solicito terminar el servicio", "n": 28}, {"categoria": "Entrega", "grupo": "cambien la dirección de entrega", "n": 60}, {"categoria": "Entrega", "grupo": "el paquete figura entregado pero no lo recibí", "n": 56}, {"categoria": "Entrega", "grupo": "la entrega llegó incompleta", "n": 83}, {"categoria": "Entrega", "grupo": "mi pedido no ha llegado todavía", "n": 57}, {"categoria": "Facturación", "grupo": "la factura tiene un valor incorrecto", "n": 81}, {"categoria": "Facturación", "grupo": "me cobraron dos veces la factura", "n": 85}, {"categoria": "Facturación", "grupo": "necesito copia de la factura de este mes", "n": 60}, {"categoria": "Facturación", "grupo": "no reconozco este cobro en mi cuenta", "n": 88}, {"categoria": "Producto", "grupo": "el artículo llegó averiado", "n": 73}, {"categoria": "Producto", "grupo": "el producto dejó de funcionar", "n": 50}, {"categoria": "Producto", "grupo": "la referencia recibida no corresponde", "n": 46}, {"categoria": "Producto", "grupo": "necesito información de garantía", "n": 56}, {"categoria": "Servicio", "grupo": "la aplicación no permite iniciar sesión", "n": 73}, {"categoria": "Servicio", "grupo": "la atención fue rápida y clara", "n": 72}, {"categoria": "Servicio", "grupo": "necesito hablar con una persona asesora", "n": 72}, {"categoria": "Servicio", "grupo": "no responden por el chat", "n": 73}], "ejemplos": {"confirmen la cancelación inmediata": ["Confirmen la cancelación inmediata", "confirmen la cancelación inmediata??", "confirmen la cancelación inmediata!!!", "confirmen la cancelación inmediata!!! visita https://ejemplo.co/caso 😕"], "no deseo renovar el plan": ["No deseo renovar el plan", "No deseo renovar el plan 😕", "no deseo renovar el plan!!!", "No deseo renovar el plan correo cliente551@mail.co"], "quiero cancelar la suscripción": ["Quiero cancelar la suscripción", "quiero cancelar la suscripción!!!", "Quiero cancelar la suscripción visita https://ejemplo.co/caso", "Quiero cancelar la suscripción 😕"], "solicito terminar el servicio": ["Solicito terminar el servicio 😕", "Solicito terminar el servicio", "Solicito terminar el servicio visita https://ejemplo.co/caso 😕", "solicito terminar el servicio!!!"], "cambien la dirección de entrega": ["Cambien la dirección de entrega", "Cambien la dirección de entrega visita https://ejemplo.co/caso", "Cambien la dirección de entrega correo cliente149@mail.co", "cambien la dirección de entrega..."], "el paquete figura entregado pero no lo recibí": ["El paquete figura entregado pero no lo recibí", "el paquete figura entregado pero no lo recibí??", "el paquete figura entregado pero no lo recibí...", "El paquete figura entregado pero no lo recibí 😕"], "la entrega llegó incompleta": ["la entrega llegó incompleta??", "la entrega llegó incompleta...", "La entrega llegó incompleta", "la entrega llegó incompleta!!! correo cliente35@mail.co 😕"], "mi pedido no ha llegado todavía": ["Mi pedido no ha llegado todavía", "mi pedido no ha llegado todavía!!!", "Mi pedido no ha llegado todavía 😕", "mi pedido no ha llegado todavía... visita https://ejemplo.co/caso"], "la factura tiene un valor incorrecto": ["La factura tiene un valor incorrecto correo cliente48@mail.co", "La factura tiene un valor incorrecto", "La factura tiene un valor incorrecto correo cliente104@mail.co", "La factura tiene un valor incorrecto correo cliente107@mail.co 😕"], "me cobraron dos veces la factura": ["Me cobraron dos veces la factura", "Me cobraron dos veces la factura correo cliente85@mail.co", "me cobraron dos veces la factura...", "Me cobraron dos veces la factura 😕"], "necesito copia de la factura de este mes": ["Necesito copia de la factura de este mes", "necesito copia de la factura de este mes?? 😕", "Necesito copia de la factura de este mes correo cliente142@mail.co 😕", "necesito copia de la factura de este mes!!!"], "no reconozco este cobro en mi cuenta": ["No reconozco este cobro en mi cuenta", "no reconozco este cobro en mi cuenta...", "No reconozco este cobro en mi cuenta 😕", "No reconozco este cobro en mi cuenta correo cliente112@mail.co"], "el artículo llegó averiado": ["El artículo llegó averiado", "el artículo llegó averiado??", "El artículo llegó averiado 😕", "el artículo llegó averiado!!!"], "el producto dejó de funcionar": ["El producto dejó de funcionar", "El producto dejó de funcionar visita https://ejemplo.co/caso", "el producto dejó de funcionar??", "el producto dejó de funcionar..."], "la referencia recibida no corresponde": ["La referencia recibida no corresponde", "La referencia recibida no corresponde correo cliente70@mail.co", "La referencia recibida no corresponde 😕", "la referencia recibida no corresponde??"], "necesito información de garantía": ["Necesito información de garantía 😕", "Necesito información de garantía correo cliente34@mail.co 😕", "Necesito información de garantía", "Necesito información de garantía visita https://ejemplo.co/caso correo cliente116@mail.co"], "la aplicación no permite iniciar sesión": ["La aplicación no permite iniciar sesión", "la aplicación no permite iniciar sesión??", "la aplicación no permite iniciar sesión...", "La aplicación no permite iniciar sesión 😕"], "la atención fue rápida y clara": ["La atención fue rápida y clara", "La atención fue rápida y clara visita https://ejemplo.co/caso", "la atención fue rápida y clara!!!", "La atención fue rápida y clara 😕"], "necesito hablar con una persona asesora": ["Necesito hablar con una persona asesora correo cliente5@mail.co", "Necesito hablar con una persona asesora", "necesito hablar con una persona asesora??", "necesito hablar con una persona asesora... 😕"], "no responden por el chat": ["No responden x el chat 😕", "No responden por el chat", "no responden por el chat??", "No responden x el chat"]}, "clases": ["Cancelación", "Entrega", "Facturación", "Producto", "Servicio"], "cm": [[59, 0, 0, 24, 32], [0, 256, 0, 0, 0], [0, 0, 314, 0, 0], [47, 73, 0, 0, 105], [73, 0, 67, 150, 0]], "alertas": [{"umbral": 0.05, "mensajes_alertados": 0.888, "precision": 0.108, "recall": 1.0}, {"umbral": 0.1, "mensajes_alertados": 0.527, "precision": 0.182, "recall": 1.0}, {"umbral": 0.15, "mensajes_alertados": 0.319, "precision": 0.238, "recall": 0.791}, {"umbral": 0.2, "mensajes_alertados": 0.152, "precision": 0.324, "recall": 0.513}, {"umbral": 0.25, "mensajes_alertados": 0.11, "precision": 0.447, "recall": 0.513}, {"umbral": 0.3, "mensajes_alertados": 0.11, "precision": 0.447, "recall": 0.513}, {"umbral": 0.35, "mensajes_alertados": 0.105, "precision": 0.468, "recall": 0.513}, {"umbral": 0.4, "mensajes_alertados": 0.105, "precision": 0.468, "recall": 0.513}, {"umbral": 0.45, "mensajes_alertados": 0.049, "precision": 1.0, "recall": 0.513}, {"umbral": 0.5, "mensajes_alertados": 0.048, "precision": 1.0, "recall": 0.496}], "cobertura": [{"umbral": 0.3, "cobertura_automatica": 0.935, "exactitud_automatica": 0.561}, {"umbral": 0.4, "cobertura_automatica": 0.738, "exactitud_automatica": 0.546}, {"umbral": 0.5, "cobertura_automatica": 0.6, "exactitud_automatica": 0.656}, {"umbral": 0.6, "cobertura_automatica": 0.371, "exactitud_automatica": 0.6}, {"umbral": 0.7, "cobertura_automatica": 0.071, "exactitud_automatica": 1.0}, {"umbral": 0.8, "cobertura_automatica": 0.065, "exactitud_automatica": 1.0}, {"umbral": 0.9, "cobertura_automatica": 0.0, "exactitud_automatica": -1.0}], "folds": [["el artículo llegó averiado", "el paquete figura entregado pero no lo recibí", "la atención fue rápida y clara", "me cobraron dos veces la factura", "solicito terminar el servicio"], ["el producto dejó de funcionar", "la aplicación no permite iniciar sesión", "la entrega llegó incompleta", "necesito copia de la factura de este mes", "no deseo renovar el plan"], ["la referencia recibida no corresponde", "mi pedido no ha llegado todavía", "necesito hablar con una persona asesora", "no reconozco este cobro en mi cuenta", "quiero cancelar la suscripción"], ["cambien la dirección de entrega", "confirmen la cancelación inmediata", "la factura tiene un valor incorrecto", "necesito información de garantía", "no responden por el chat"]], "matriz": [{"representacion": "TF-IDF palabras + caracteres", "F1_grupo": 0.471, "F1crit_grupo": 0.5, "F1_peor_canal": 0.478, "segundos": 0.227, "n_features": 1141, "memoria_KB": 67.038, "interpretabilidad_1a5": 3, "robustez_canal_1a5": 5, "valida": true}, {"representacion": "TF-IDF caracteres", "F1_grupo": 0.466, "F1crit_grupo": 0.5, "F1_peor_canal": 0.409, "segundos": 0.209, "n_features": 961, "memoria_KB": 55.662, "interpretabilidad_1a5": 3, "robustez_canal_1a5": 4, "valida": true}, {"representacion": "TF-IDF lemas", "F1_grupo": 0.311, "F1crit_grupo": 0.125, "F1_peor_canal": 0.31, "segundos": 0.082, "n_features": 176, "memoria_KB": 12.274, "interpretabilidad_1a5": 5, "robustez_canal_1a5": 5, "valida": true}, {"representacion": "fastText promedio (limpio, por pliegue)", "F1_grupo": 0.262, "F1crit_grupo": 0.189, "F1_peor_canal": 0.264, "segundos": 4.53, "n_features": 50, "memoria_KB": 448.936, "interpretabilidad_1a5": 2, "robustez_canal_1a5": 5, "valida": true}, {"representacion": "Word2Vec promedio (limpio, por pliegue)", "F1_grupo": 0.249, "F1crit_grupo": 0.581, "F1_peor_canal": 0.251, "segundos": 4.584, "n_features": 50, "memoria_KB": 64.286, "interpretabilidad_1a5": 2, "robustez_canal_1a5": 5, "valida": true}, {"representacion": "TF-IDF palabras", "F1_grupo": 0.211, "F1crit_grupo": 0.0, "F1_peor_canal": 0.208, "segundos": 0.082, "n_features": 180, "memoria_KB": 12.49, "interpretabilidad_1a5": 5, "robustez_canal_1a5": 5, "valida": true}, {"representacion": "fastText promedio (corpus original)", "F1_grupo": 0.81, "F1crit_grupo": 0.75, "F1_peor_canal": 0.854, "segundos": 0.126, "n_features": 50, "memoria_KB": 474.164, "interpretabilidad_1a5": 2, "robustez_canal_1a5": 5, "valida": false}, {"representacion": "Word2Vec promedio (corpus original)", "F1_grupo": 0.748, "F1crit_grupo": 0.75, "F1_peor_canal": 0.802, "segundos": 0.116, "n_features": 50, "memoria_KB": 67.479, "interpretabilidad_1a5": 2, "robustez_canal_1a5": 5, "valida": false}], "f1_canal": {"TF-IDF palabras": {"chat": 0.236, "correo": 0.208, "web": 0.221, "whatsapp": 0.244}, "TF-IDF caracteres": {"chat": 0.439, "correo": 0.435, "web": 0.461, "whatsapp": 0.409}, "TF-IDF lemas": {"chat": 0.35, "correo": 0.351, "web": 0.31, "whatsapp": 0.385}, "TF-IDF palabras + caracteres": {"chat": 0.486, "correo": 0.479, "web": 0.496, "whatsapp": 0.478}, "Word2Vec promedio (corpus original)": {"chat": 0.852, "correo": 0.802, "web": 0.807, "whatsapp": 0.815}, "fastText promedio (corpus original)": {"chat": 0.898, "correo": 0.854, "web": 0.866, "whatsapp": 0.866}, "Word2Vec promedio (limpio, por pliegue)": {"chat": 0.274, "correo": 0.263, "web": 0.261, "whatsapp": 0.251}, "fastText promedio (limpio, por pliegue)": {"chat": 0.299, "correo": 0.287, "web": 0.264, "whatsapp": 0.318}}, "emb": {"Word2Vec original": [["servicio", 0.076, 0.093, 0.08, "etiqueta"], ["cliente", 0.032, 0.076, 0.05, "sufijo"], ["organización", -0.008, 0.137, 0.054, "sufijo"], ["proceso", 0.044, 0.198, 0.041, "sufijo"], ["respuesta", 0.075, 0.282, 0.08, "sufijo"], ["la", -0.298, 0.211, -0.262, "compartida"], ["no", 0.41, -0.369, -0.174, "compartida"], ["entrega", 0.112, 0.015, -0.422, "etiqueta"], ["el", 0.548, 0.187, 0.372, "compartida"], ["de", -0.403, 0.208, 0.396, "compartida"], ["producto", 0.23, 0.332, 0.61, "etiqueta"], ["cancelación", 0.31, 0.552, -0.248, "etiqueta"], ["facturación", -0.668, -0.174, 0.126, "etiqueta"], ["factura", -0.918, 0.009, 0.127, "Facturación"], ["necesito", -0.331, 0.05, 0.675, "compartida"], ["este", -0.57, -0.468, 0.325, "Facturación"], ["mi", -0.162, -0.803, 0.143, "compartida"], ["llegó", 0.482, 0.501, -0.257, "compartida"], ["me", -0.647, -0.334, -0.268, "Facturación"], ["cobraron", -0.674, -0.317, -0.213, "Facturación"], ["dos", -0.66, -0.295, -0.198, "Facturación"], ["veces", -0.614, -0.228, -0.128, "Facturación"], ["reconozco", -0.124, -1.0, 0.307, "Facturación"], ["cobro", -0.199, -0.987, 0.308, "Facturación"], ["en", -0.276, -0.891, 0.281, "Facturación"], ["cuenta", -0.304, -0.626, 0.339, "Facturación"], ["tiene", -0.982, 0.116, -0.159, "Facturación"], ["un", -0.919, 0.204, -0.114, "Facturación"], ["valor", -0.884, 0.181, -0.084, "Facturación"], ["incorrecto", -0.739, 0.23, -0.031, "Facturación"], ["copia", -0.758, 0.164, 0.441, "Facturación"], ["mes", -0.699, 0.087, 0.341, "Facturación"], ["pedido", 0.253, -0.828, -0.383, "Entrega"], ["ha", 0.274, -0.698, -0.427, "Entrega"], ["llegado", 0.309, -0.567, -0.429, "Entrega"], ["todavía", 0.303, -0.472, -0.223, "Entrega"], ["incompleta", 0.169, 0.531, -0.527, "Entrega"], ["cambien", -0.317, 0.112, -0.269, "Entrega"], ["dirección", -0.292, 0.15, -0.267, "Entrega"], ["paquete", 0.675, -0.305, -0.028, "Entrega"], ["figura", 0.637, -0.359, -0.11, "Entrega"], ["entregado", 0.604, -0.422, -0.22, "Entrega"], ["pero", 0.586, -0.333, -0.372, "Entrega"], ["lo", 0.539, -0.224, -0.408, "Entrega"], ["recibí", 0.526, -0.126, -0.383, "Entrega"], ["dejó", 0.215, 0.288, 0.945, "Producto"], ["funcionar", 0.208, 0.452, 0.925, "Producto"], ["referencia", 0.141, -0.004, 0.077, "Producto"], ["recibida", 0.139, -0.006, 0.114, "Producto"], ["corresponde", 0.148, 0.133, 0.223, "Producto"], ["información", -0.2, 0.367, 0.879, "Producto"], ["garantía", -0.17, 0.445, 0.876, "Producto"], ["artículo", 0.631, 0.618, 0.399, "Producto"], ["averiado", 0.616, 0.655, 0.412, "Producto"], ["responden", 0.817, -0.401, 0.459, "Servicio"], ["por", 0.779, -0.417, 0.34, "Servicio"], ["chat", 0.705, -0.26, 0.375, "Servicio"], ["atención", -0.346, 0.194, -0.495, "Servicio"], ["fue", -0.265, 0.181, -0.527, "Servicio"], ["rápida", -0.344, 0.193, -0.43, "Servicio"], ["y", -0.294, 0.216, -0.448, "Servicio"], ["clara", -0.286, 0.287, -0.376, "Servicio"], ["hablar", -0.181, -0.129, 0.376, "Servicio"], ["con", -0.126, -0.118, 0.378, "Servicio"], ["una", -0.164, -0.168, 0.368, "Servicio"], ["persona", -0.133, -0.129, 0.33, "Servicio"], ["asesora", -0.1, -0.019, 0.334, "Servicio"], ["aplicación", 0.091, -0.281, -0.515, "Servicio"], ["permite", 0.091, -0.309, -0.538, "Servicio"], ["iniciar", 0.078, -0.248, -0.52, "Servicio"], ["sesión", 0.106, -0.151, -0.364, "Servicio"], ["quiero", -0.104, 0.642, -0.446, "Cancelación"], ["cancelar", -0.117, 0.653, -0.456, "Cancelación"], ["suscripción", -0.051, 0.67, -0.346, "Cancelación"], ["solicito", 0.509, 0.41, 0.184, "Cancelación"], ["terminar", 0.453, 0.563, 0.091, "Cancelación"], ["deseo", 0.772, -0.011, -0.078, "Cancelación"], ["renovar", 0.732, 0.041, -0.097, "Cancelación"], ["plan", 0.716, 0.207, -0.008, "Cancelación"], ["confirmen", 0.109, 0.788, -0.533, "Cancelación"], ["inmediata", 0.071, 0.848, -0.396, "Cancelación"]], "fastText original": [["servicio", -0.051, 0.091, 0.093, "etiqueta"], ["cliente", -0.021, 0.05, 0.107, "sufijo"], ["organización", 0.009, 0.123, 0.083, "sufijo"], ["proceso", -0.036, 0.142, 0.075, "sufijo"], ["respuesta", -0.097, 0.186, 0.15, "sufijo"], ["la", 0.334, 0.127, -0.143, "compartida"], ["no", -0.402, -0.282, -0.201, "compartida"], ["entrega", -0.192, -0.193, -0.146, "etiqueta"], ["el", -0.54, 0.172, 0.383, "compartida"], ["de", 0.301, -0.043, 0.547, "compartida"], ["producto", -0.199, 0.25, 0.677, "etiqueta"], ["cancelación", -0.21, 0.582, -0.32, "etiqueta"], ["facturación", 0.578, -0.255, 0.051, "etiqueta"], ["factura", 0.843, -0.203, 0.239, "Facturación"], ["necesito", 0.38, -0.01, 0.656, "compartida"], ["este", 0.364, -0.591, 0.384, "Facturación"], ["mi", 0.061, -0.895, 0.028, "compartida"], ["llegó", -0.445, 0.29, 0.137, "compartida"], ["me", 0.728, -0.434, -0.299, "Facturación"], ["cobraron", 0.762, -0.411, -0.259, "Facturación"], ["dos", 0.72, -0.371, -0.267, "Facturación"], ["veces", 0.701, -0.331, -0.185, "Facturación"], ["reconozco", 0.036, -1.0, 0.159, "Facturación"], ["cobro", 0.124, -0.932, -0.012, "Facturación"], ["en", 0.062, -0.912, 0.118, "Facturación"], ["cuenta", 0.129, -0.664, 0.251, "Facturación"], ["tiene", 0.95, -0.061, 0.028, "Facturación"], ["un", 0.954, 0.038, 0.008, "Facturación"], ["valor", 0.847, 0.039, 0.09, "Facturación"], ["incorrecto", 0.769, -0.011, 0.164, "Facturación"], ["copia", 0.729, -0.046, 0.413, "Facturación"], ["mes", 0.649, -0.19, 0.4, "Facturación"], ["pedido", -0.427, -0.902, -0.284, "Entrega"], ["ha", -0.315, -0.832, -0.244, "Entrega"], ["llegado", -0.621, -0.71, -0.117, "Entrega"], ["todavía", -0.332, -0.604, -0.153, "Entrega"], ["incompleta", -0.167, 0.368, -0.163, "Entrega"], ["cambien", 0.277, -0.152, 0.06, "Entrega"], ["dirección", 0.257, -0.036, -0.049, "Entrega"], ["paquete", -0.724, -0.18, -0.06, "Entrega"], ["figura", -0.656, -0.107, -0.279, "Entrega"], ["entregado", -0.701, -0.451, -0.187, "Entrega"], ["pero", -0.724, -0.173, -0.469, "Entrega"], ["lo", -0.624, -0.156, -0.352, "Entrega"], ["recibí", -0.682, -0.197, -0.181, "Entrega"], ["dejó", -0.268, 0.144, 0.872, "Producto"], ["funcionar", -0.287, 0.269, 0.951, "Producto"], ["referencia", -0.106, -0.038, 0.24, "Producto"], ["recibida", -0.148, -0.014, 0.212, "Producto"], ["corresponde", -0.194, 0.086, 0.441, "Producto"], ["información", 0.185, 0.449, 0.807, "Producto"], ["garantía", 0.149, 0.244, 0.945, "Producto"], ["artículo", -0.616, 0.531, 0.519, "Producto"], ["averiado", -0.661, 0.503, 0.577, "Producto"], ["responden", -0.863, -0.153, 0.279, "Servicio"], ["por", -0.803, -0.234, 0.19, "Servicio"], ["chat", -0.722, -0.102, 0.168, "Servicio"], ["atención", 0.541, 0.458, -0.44, "Servicio"], ["fue", 0.404, 0.41, -0.323, "Servicio"], ["rápida", 0.501, 0.458, -0.327, "Servicio"], ["y", 0.412, 0.439, -0.351, "Servicio"], ["clara", 0.447, 0.47, -0.331, "Servicio"], ["hablar", 0.228, 0.187, 0.066, "Servicio"], ["con", 0.213, 0.319, 0.149, "Servicio"], ["una", 0.215, 0.116, 0.121, "Servicio"], ["persona", 0.062, 0.109, 0.12, "Servicio"], ["asesora", 0.134, 0.138, 0.127, "Servicio"], ["aplicación", 0.042, -0.058, -0.774, "Servicio"], ["permite", 0.013, -0.073, -0.834, "Servicio"], ["iniciar", -0.051, -0.046, -0.748, "Servicio"], ["sesión", -0.014, 0.005, -0.717, "Servicio"], ["quiero", 0.114, 0.519, -0.485, "Cancelación"], ["cancelar", 0.124, 0.731, -0.521, "Cancelación"], ["suscripción", 0.141, 0.573, -0.449, "Cancelación"], ["solicito", -0.346, 0.601, -0.029, "Cancelación"], ["terminar", -0.359, 0.726, -0.032, "Cancelación"], ["deseo", -0.649, 0.11, -0.25, "Cancelación"], ["renovar", -0.641, 0.213, -0.298, "Cancelación"], ["plan", -0.696, 0.281, -0.218, "Cancelación"], ["confirmen", 0.14, 0.788, -0.294, "Cancelación"], ["inmediata", -0.039, 0.721, -0.295, "Cancelación"]], "Word2Vec limpio": [["la", -0.554, -0.277, -0.32, "compartida"], ["no", 0.684, -0.445, 0.021, "compartida"], ["emo_neg", -0.004, 0.027, -0.042, "compartida"], ["el", 0.635, 0.709, -0.137, "compartida"], ["de", -0.609, 0.565, 0.375, "compartida"], ["factura", -0.924, -0.128, 0.438, "Facturación"], ["necesito", -0.595, 0.4, 0.587, "compartida"], ["llegó", -0.091, 0.559, -0.687, "compartida"], ["este", -0.324, -0.295, 0.807, "Facturación"], ["entrega", -0.542, 0.379, -0.541, "Entrega"], ["mi", 0.384, -0.484, 0.817, "compartida"], ["confirmen", -0.351, -0.323, -0.501, "Cancelación"], ["cancelación", -0.382, -0.372, -0.521, "Cancelación"], ["inmediata", -0.395, -0.358, -0.526, "Cancelación"], ["artículo", 0.214, 0.631, -0.514, "Producto"], ["averiado", 0.223, 0.663, -0.52, "Producto"], ["paquete", 0.963, 0.191, -0.25, "Entrega"], ["figura", 1.0, 0.182, -0.214, "Entrega"], ["entregado", 0.982, 0.102, -0.199, "Entrega"], ["pero", 0.926, 0.017, -0.2, "Entrega"], ["lo", 0.843, -0.171, -0.167, "Entrega"], ["recibí", 0.768, -0.226, -0.174, "Entrega"], ["aplicación", 0.198, -0.652, -0.302, "Servicio"], ["permite", 0.204, -0.627, -0.339, "Servicio"], ["iniciar", 0.217, -0.606, -0.355, "Servicio"], ["sesión", 0.19, -0.587, -0.292, "Servicio"], ["incompleta", -0.328, 0.282, -0.668, "Entrega"], ["me", -0.671, -0.22, -0.06, "Facturación"], ["cobraron", -0.683, -0.197, -0.088, "Facturación"], ["dos", -0.682, -0.268, -0.01, "Facturación"], ["veces", -0.69, -0.238, -0.0, "Facturación"], ["copia", -0.907, 0.13, 0.508, "Facturación"], ["mes", -0.713, -0.018, 0.554, "Facturación"], ["hablar", -0.111, 0.344, 0.367, "Servicio"], ["con", -0.08, 0.352, 0.374, "Servicio"], ["una", -0.076, 0.373, 0.347, "Servicio"], ["persona", -0.022, 0.308, 0.368, "Servicio"], ["asesora", 0.012, 0.286, 0.35, "Servicio"], ["reconozco", 0.225, -0.473, 0.863, "Facturación"], ["cobro", 0.189, -0.463, 0.853, "Facturación"], ["en", 0.158, -0.45, 0.85, "Facturación"], ["cuenta", 0.116, -0.362, 0.779, "Facturación"], ["cambien", -0.584, 0.368, -0.287, "Entrega"], ["dirección", -0.642, 0.402, -0.36, "Entrega"], ["producto", -0.034, 0.902, 0.207, "Producto"], ["dejó", -0.031, 0.899, 0.276, "Producto"], ["funcionar", -0.055, 0.865, 0.244, "Producto"], ["atención", -0.225, -0.177, -0.469, "Servicio"], ["fue", -0.186, -0.175, -0.453, "Servicio"], ["rápida", -0.205, -0.185, -0.47, "Servicio"], ["y", -0.169, -0.15, -0.45, "Servicio"], ["clara", -0.184, -0.18, -0.433, "Servicio"], ["tiene", -0.74, -0.199, 0.15, "Facturación"], ["un", -0.704, -0.178, 0.151, "Facturación"], ["valor", -0.692, -0.161, 0.142, "Facturación"], ["incorrecto", -0.639, -0.174, 0.142, "Facturación"], ["referencia", 0.161, -0.675, -0.365, "Producto"], ["recibida", 0.123, -0.699, -0.337, "Producto"], ["corresponde", 0.11, -0.655, -0.33, "Producto"], ["pedido", 0.553, -0.605, 0.478, "Entrega"], ["ha", 0.581, -0.603, 0.445, "Entrega"], ["llegado", 0.595, -0.592, 0.422, "Entrega"], ["todavía", 0.578, -0.548, 0.363, "Entrega"], ["información", -0.451, 0.593, 0.408, "Producto"], ["garantía", -0.441, 0.575, 0.403, "Producto"], ["deseo", 0.716, 0.274, 0.032, "Cancelación"], ["renovar", 0.745, 0.268, 0.021, "Cancelación"], ["plan", 0.706, 0.261, 0.017, "Cancelación"], ["responden", 0.675, 0.283, 0.043, "Servicio"], ["por", 0.674, 0.267, 0.004, "Servicio"], ["chat", 0.635, 0.263, 0.002, "Servicio"], ["quiero", -0.422, -0.28, -0.489, "Cancelación"], ["cancelar", -0.385, -0.287, -0.507, "Cancelación"], ["suscripción", -0.413, -0.272, -0.487, "Cancelación"], ["solicito", 0.335, 0.776, -0.022, "Cancelación"], ["terminar", 0.317, 0.792, -0.069, "Cancelación"], ["servicio", 0.305, 0.746, -0.051, "Cancelación"]], "fastText limpio": [["la", -0.448, 0.31, 0.179, "compartida"], ["no", 0.631, 0.308, -0.223, "compartida"], ["emo_neg", -0.002, -0.03, 0.028, "compartida"], ["el", 0.559, -0.556, 0.297, "compartida"], ["de", -0.471, -0.603, 0.026, "compartida"], ["factura", -0.713, -0.126, -0.363, "Facturación"], ["necesito", -0.624, -0.77, -0.291, "compartida"], ["llegó", 0.077, -0.148, 0.459, "compartida"], ["este", -0.225, -0.005, -0.635, "Facturación"], ["entrega", -0.115, -0.1, 0.692, "Entrega"], ["mi", 0.316, 0.166, -0.805, "compartida"], ["confirmen", -0.481, 0.509, 0.06, "Cancelación"], ["cancelación", -0.649, 0.548, 0.515, "Cancelación"], ["inmediata", -0.497, 0.535, 0.151, "Cancelación"], ["artículo", 0.278, -0.391, 0.587, "Producto"], ["averiado", 0.311, -0.39, 0.508, "Producto"], ["paquete", 0.896, -0.087, 0.143, "Entrega"], ["figura", 0.877, -0.108, 0.127, "Entrega"], ["entregado", 0.847, 0.021, 0.238, "Entrega"], ["pero", 0.893, 0.114, 0.23, "Entrega"], ["lo", 0.82, 0.216, 0.163, "Entrega"], ["recibí", 0.805, 0.365, -0.018, "Entrega"], ["aplicación", 0.146, 0.702, 0.348, "Servicio"], ["permite", 0.217, 0.711, 0.223, "Servicio"], ["iniciar", 0.223, 0.664, 0.248, "Servicio"], ["sesión", 0.161, 0.649, 0.322, "Servicio"], ["incompleta", -0.188, -0.055, 0.689, "Entrega"], ["me", -0.625, 0.094, -0.291, "Facturación"], ["cobraron", -0.659, 0.21, -0.489, "Facturación"], ["dos", -0.629, 0.1, -0.356, "Facturación"], ["veces", -0.715, -0.004, -0.411, "Facturación"], ["copia", -0.824, -0.164, -0.314, "Facturación"], ["mes", -0.525, -0.179, -0.423, "Facturación"], ["hablar", -0.256, -0.485, -0.124, "Servicio"], ["con", -0.433, -0.181, -0.514, "Servicio"], ["una", -0.251, -0.481, -0.285, "Servicio"], ["persona", -0.112, -0.418, -0.179, "Servicio"], ["asesora", -0.138, -0.418, -0.256, "Servicio"], ["reconozco", 0.225, 0.244, -0.788, "Facturación"], ["cobro", 0.099, 0.356, -1.0, "Facturación"], ["en", 0.264, 0.143, -0.697, "Facturación"], ["cuenta", 0.102, 0.094, -0.803, "Facturación"], ["cambien", -0.412, -0.161, 0.441, "Entrega"], ["dirección", -0.552, -0.037, 0.666, "Entrega"], ["producto", 0.102, -0.861, 0.112, "Producto"], ["dejó", 0.124, -0.844, 0.132, "Producto"], ["funcionar", 0.059, -0.858, 0.199, "Producto"], ["atención", -0.426, 0.489, 0.508, "Servicio"], ["fue", -0.298, 0.312, 0.256, "Servicio"], ["rápida", -0.302, 0.421, 0.238, "Servicio"], ["y", -0.268, 0.349, 0.217, "Servicio"], ["clara", -0.315, 0.319, 0.269, "Servicio"], ["tiene", -0.619, -0.094, -0.14, "Facturación"], ["un", -0.656, -0.089, -0.163, "Facturación"], ["valor", -0.544, -0.09, -0.139, "Facturación"], ["incorrecto", -0.585, -0.062, -0.025, "Facturación"], ["referencia", 0.187, 0.652, 0.042, "Producto"], ["recibida", 0.241, 0.747, 0.037, "Producto"], ["corresponde", 0.2, 0.548, 0.084, "Producto"], ["pedido", 0.543, 0.273, -0.609, "Entrega"], ["ha", 0.511, 0.198, -0.602, "Entrega"], ["llegado", 0.836, 0.261, -0.43, "Entrega"], ["todavía", 0.498, 0.208, -0.494, "Entrega"], ["información", -0.556, -0.362, 0.295, "Producto"], ["garantía", -0.414, -0.573, -0.01, "Producto"], ["deseo", 0.662, -0.305, -0.006, "Cancelación"], ["renovar", 0.683, -0.234, 0.061, "Cancelación"], ["plan", 0.625, -0.243, 0.02, "Cancelación"], ["responden", 0.669, 0.04, 0.217, "Servicio"], ["por", 0.633, -0.167, 0.021, "Servicio"], ["chat", 0.572, -0.162, 0.074, "Servicio"], ["quiero", -0.335, 0.313, 0.359, "Cancelación"], ["cancelar", -0.56, 0.357, 0.438, "Cancelación"], ["suscripción", -0.486, 0.368, 0.477, "Cancelación"], ["solicito", 0.364, -0.726, 0.115, "Cancelación"], ["terminar", 0.329, -0.675, 0.24, "Cancelación"], ["servicio", 0.327, -0.669, 0.136, "Cancelación"]]}, "oov": {"facturacionn": {"ngramas": ["<fa", "fac", "act", "ctu", "tur", "ura", "rac", "aci", "cio", "ion", "onn", "nn>", "<fac", "fact", "actu", "ctur", "tura", "urac", "raci", "acio", "cion", "ionn", "onn>", "<fact", "factu", "actur", "ctura", "turac", "uraci", "racio", "acion", "cionn", "ionn>"], "conocidos": ["<fa", "fac", "act", "ctu", "tur", "ura", "rac", "aci", "cio", "ion", "<fac", "fact", "actu", "ctur", "tura", "urac", "raci", "cion", "<fact", "factu", "actur", "ctura", "turac", "uraci"], "vecinos": ["facturación", "factura", "cuenta"]}, "paqte": {"ngramas": ["<pa", "paq", "aqt", "qte", "te>", "<paq", "paqt", "aqte", "qte>", "<paqt", "paqte", "aqte>"], "conocidos": ["<pa", "paq", "te>", "<paq"], "vecinos": ["paquete", "figura", "entregado"]}, "cancelacion": {"ngramas": ["<ca", "can", "anc", "nce", "cel", "ela", "lac", "aci", "cio", "ion", "on>", "<can", "canc", "ance", "ncel", "cela", "elac", "laci", "acio", "cion", "ion>", "<canc", "cance", "ancel", "ncela", "celac", "elaci", "lacio", "acion", "cion>"], "conocidos": ["<ca", "can", "anc", "nce", "cel", "ela", "lac", "aci", "cio", "ion", "on>", "<can", "canc", "ance", "ncel", "cela", "elac", "laci", "cion", "<canc", "cance", "ancel", "ncela", "celac", "elaci"], "vecinos": ["cancelación", "cancelar", "plan"]}, "reembolso": {"ngramas": ["<re", "ree", "eem", "emb", "mbo", "bol", "ols", "lso", "so>", "<ree", "reem", "eemb", "embo", "mbol", "bols", "olso", "lso>", "<reem", "reemb", "eembo", "embol", "mbols", "bolso", "olso>"], "conocidos": ["<re", "so>"], "vecinos": ["responden", "renovar", "por"]}}, "ngram_vocab": ["<ap", "<apl", "<apli", "<ar", "<art", "<artí", "<as", "<ase", "<ases", "<at", "<ate", "<aten", "<av", "<ave", "<aver", "<ca", "<cam", "<camb", "<can", "<canc", "<ch", "<cha", "<chat", "<cl", "<cla", "<clar", "<cli", "<clie", "<co", "<cob", "<cobr", "<con", "<con>", "<conf", "<cop", "<copi", "<cor", "<corr", "<cu", "<cue", "<cuen", "<de", "<de>", "<dej", "<dejó", "<des", "<dese", "<di", "<dir", "<dire", "<do", "<dos", "<dos>", "<el", "<el>", "<en", "<en>", "<ent", "<entr", "<es", "<est", "<este", "<fa", "<fac", "<fact", "<fi", "<fig", "<figu", "<fu", "<fue", "<fue>", "<fun", "<func", "<ga", "<gar", "<gara", "<ha", "<ha>", "<hab", "<habl", "<in", "<inc", "<inco", "<inf", "<info", "<ini", "<inic", "<inm", "<inme", "<la", "<la>", "<ll", "<lle", "<lleg", "<lo", "<lo>", "<me", "<me>", "<mes", "<mes>", "<mi", "<mi>", "<ne", "<nec", "<nece", "<no", "<no>", "<or", "<org", "<orga", "<pa", "<paq", "<paqu", "<pe", "<ped", "<pedi", "<per", "<perm", "<pero", "<pers", "<pl", "<pla", "<plan", "<po", "<por", "<por>", "<pr", "<pro", "<proc", "<prod", "<qu", "<qui", "<quie", "<re", "<rec", "<reci", "<reco", "<ref", "<refe", "<ren", "<reno", "<res", "<resp", "<rá", "<ráp", "<rápi", "<se", "<ser", "<serv", "<ses", "<sesi", "<so", "<sol", "<soli", "<su", "<sus", "<susc", "<te", "<ter", "<term", "<ti", "<tie", "<tien", "<to", "<tod", "<toda", "<un", "<un>", "<una", "<una>", "<va", "<val", "<valo", "<ve", "<vec", "<vece", "<y>", "abl", "abla", "ablar", "aci", "ació", "ación", "act", "actu", "actur", "ado", "ado>", "alo", "alor", "alor>", "amb", "ambi", "ambie", "an>", "anc", "ance", "ancel", "ani", "aniz", "aniza", "ant", "antí", "antía", "apl", "apli", "aplic", "aqu", "aque", "aquet", "ar>", "ara", "ara>", "aran", "arant", "aro", "aron", "aron>", "art", "artí", "artíc", "ase", "ases", "aseso", "at>", "ata", "ata>", "ate", "aten", "atenc", "ave", "aver", "averi", "aví", "avía", "avía>", "bid", "bida", "bida>", "bie", "bien", "bien>", "bla", "blar", "blar>", "bra", "brar", "braro", "bro", "bro>", "bí>", "cac", "caci", "cació", "cam", "camb", "cambi", "can", "canc", "cance", "cci", "cció", "cción", "cel", "cela", "celac", "celar", "ces", "ces>", "cesi", "cesit", "ceso", "ceso>", "cha", "chat", "chat>", "cia", "cia>", "ciar", "ciar>", "cib", "cibi", "cibid", "cibí", "cibí>", "cio", "cio>", "cion", "ciona", "cit", "cito", "cito>", "ció", "ción", "ción>", "cla", "clar", "clara", "cli", "clie", "clien", "co>", "cob", "cobr", "cobra", "cobro", "com", "comp", "compl", "con", "con>", "conf", "confi", "cono", "conoz", "cop", "copi", "copia", "cor", "corr", "corre", "cri", "crip", "cripc", "cto", "cto>", "ctu", "ctur", "ctura", "cue", "cuen", "cuent", "cul", "culo", "culo>", "da>", "dav", "daví", "davía", "de>", "dej", "dejó", "dejó>", "den", "den>", "des", "dese", "deseo", "dia", "diat", "diata", "did", "dido", "dido>", "dir", "dire", "direc", "do>", "dos", "dos>", "duc", "duct", "ducto", "ecc", "ecci", "ecció", "ece", "eces", "eces>", "ecesi", "eci", "ecib", "ecibi", "ecibí", "eco", "econ", "econo", "ect", "ecto", "ecto>", "edi", "edia", "ediat", "edid", "edido", "efe", "efer", "efere", "ega", "ega>", "egad", "egado", "egó", "egó>", "ejó", "ejó>", "el>", "ela", "elac", "elaci", "elar", "elar>", "en>", "enc", "enci", "encia", "enció", "ene", "ene>", "eno", "enov", "enova", "ent", "enta", "enta>", "ente", "ente>", "entr", "entre", "eo>", "ere", "eren", "erenc", "eri", "eria", "eriad", "erm", "ermi", "ermin", "ermit", "ero", "ero>", "ers", "erso", "erson", "erv", "ervi", "ervic", "es>", "ese", "eseo", "eseo>", "esi", "esit", "esito", "esió", "esión", "eso", "eso>", "esor", "esora", "esp", "espo", "espon", "espu", "espue", "est", "esta", "esta>", "este", "este>", "eta", "eta>", "ete", "ete>", "fac", "fact", "factu", "fer", "fere", "feren", "fig", "figu", "figur", "fir", "firm", "firme", "for", "form", "forma", "fue", "fue>", "fun", "func", "funci", "ga>", "gad", "gado", "gado>", "gan", "gani", "ganiz", "gar", "gara", "garan", "gur", "gura", "gura>", "gó>", "ha>", "hab", "habl", "habla", "hat", "hat>", "ia>", "iad", "iado", "iado>", "iar", "iar>", "iat", "iata", "iata>", "ibi", "ibid", "ibida", "ibí", "ibí>", "ica", "icac", "icaci", "ici", "icia", "iciar", "icio", "icio>", "icit", "icito", "ida", "ida>", "ido", "ido>", "ien", "ien>", "iene", "iene>", "ient", "iente", "ier", "iero", "iero>", "igu", "igur", "igura", "ina", "inar", "inar>", "inc", "inco", "incom", "incor", "inf", "info", "infor", "ini", "inic", "inici", "inm", "inme", "inmed", "io>", "ion", "iona", "ionar", "ipc", "ipci", "ipció", "ire", "irec", "irecc", "irm", "irme", "irmen", "ite", "ite>", "ito", "ito>", "iza", "izac", "izaci", "ión", "ión>", "jó>", "la>", "lac", "laci", "lació", "lan", "lan>", "lar", "lar>", "lara", "lara>", "leg", "lega", "legad", "legó", "legó>", "let", "leta", "leta>", "lic", "lica", "licac", "lici", "licit", "lie", "lien", "lient", "lle", "lleg", "llega", "llegó", "lo>", "lor", "lor>", "mac", "maci", "mació", "mbi", "mbie", "mbien", "me>", "med", "medi", "media", "men", "men>", "mes", "mes>", "mi>", "min", "mina", "minar", "mit", "mite", "mite>", "mpl", "mple", "mplet", "na>", "nar", "nar>", "nce", "ncel", "ncela", "nci", "ncia", "ncia>", "ncio", "ncion", "nció", "nción", "nco", "ncom", "ncomp", "ncor", "ncorr", "nde", "nde>", "nden", "nden>", "ne>", "nec", "nece", "neces", "nfi", "nfir", "nfirm", "nfo", "nfor", "nform", "nic", "nici", "nicia", "niz", "niza", "nizac", "nme", "nmed", "nmedi", "no>", "nov", "nova", "novar", "noz", "nozc", "nozco", "nta", "nta>", "nte", "nte>", "ntr", "ntre", "ntreg", "ntí", "ntía", "ntía>", "obr", "obra", "obrar", "obro", "obro>", "oce", "oces", "oceso", "oda", "odav", "odaví", "odu", "oduc", "oduct", "oli", "olic", "olici", "omp", "ompl", "omple", "on>", "ona", "ona>", "onar", "onar>", "ond", "onde", "onde>", "onden", "onf", "onfi", "onfir", "ono", "onoz", "onozc", "opi", "opia", "opia>", "or>", "ora", "ora>", "org", "orga", "organ", "orm", "orma", "ormac", "orr", "orre", "orrec", "orres", "os>", "ova", "ovar", "ovar>", "ozc", "ozco", "ozco>", "paq", "paqu", "paque", "pci", "pció", "pción", "ped", "pedi", "pedid", "per", "perm", "permi", "pero", "pero>", "pers", "perso", "pia", "pia>", "pid", "pida", "pida>", "pla", "plan", "plan>", "ple", "plet", "pleta", "pli", "plic", "plica", "pon", "pond", "ponde", "por", "por>", "pro", "proc", "proce", "prod", "produ", "pue", "pues", "puest", "que", "quet", "quete", "qui", "quie", "quier", "ra>", "rac", "raci", "ració", "ran", "rant", "rantí", "rar", "raro", "raron", "rec", "recc", "recci", "reci", "recib", "reco", "recon", "rect", "recto", "ref", "refe", "refer", "reg", "rega", "rega>", "regad", "ren", "renc", "renci", "reno", "renov", "res", "resp", "respo", "respu", "rga", "rgan", "rgani", "ria", "riad", "riado", "rip", "ripc", "ripci", "rma", "rmac", "rmaci", "rme", "rmen", "rmen>", "rmi", "rmin", "rmina", "rmit", "rmite", "ro>", "roc", "roce", "roces", "rod", "rodu", "roduc", "ron", "ron>", "rre", "rrec", "rrect", "rres", "rresp", "rso", "rson", "rsona", "rtí", "rtíc", "rtícu", "rvi", "rvic", "rvici", "ráp", "rápi", "rápid", "scr", "scri", "scrip", "seo", "seo>", "ser", "serv", "servi", "ses", "sesi", "sesió", "seso", "sesor", "sit", "sito", "sito>", "sió", "sión", "sión>", "so>", "sol", "soli", "solic", "son", "sona", "sona>", "sor", "sora", "sora>", "spo", "spon", "spond", "spu", "spue", "spues", "sta", "sta>", "ste", "ste>", "sus", "susc", "suscr", "ta>", "te>", "ten", "tenc", "tenci", "ter", "term", "termi", "tie", "tien", "tiene", "to>", "tod", "toda", "todav", "tre", "treg", "trega", "tur", "tura", "tura>", "turac", "tía", "tía>", "tíc", "tícu", "tícul", "uct", "ucto", "ucto>", "ue>", "uen", "uent", "uenta", "ues", "uest", "uesta", "uet", "uete", "uete>", "uie", "uier", "uiero", "ulo", "ulo>", "un>", "una", "una>", "unc", "unci", "uncio", "ura", "ura>", "urac", "uraci", "usc", "uscr", "uscri", "val", "valo", "valor", "var", "var>", "vec", "vece", "veces", "ver", "veri", "veria", "vic", "vici", "vicio", "vía", "vía>", "zac", "zaci", "zació", "zco", "zco>", "ápi", "ápid", "ápida", "ía>", "ícu", "ícul", "ículo", "ón>"]}</script>
+<script>
+(function(){
+const D = JSON.parse(document.getElementById('data').textContent);
+const RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = (s, r=document) => r.querySelector(s);
+const el = (tag, attrs={}, html) => { const e=document.createElement(tag); for(const k in attrs){ if(k==='class') e.className=attrs[k]; else e.setAttribute(k, attrs[k]); } if(html!==undefined) e.innerHTML=html; return e; };
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmt = (x, d=2) => (x===null||x===undefined||isNaN(x)) ? '—' : Number(x).toFixed(d).replace('.', ',');
+const pct = (x, d=0) => (x*100).toFixed(d).replace('.', ',') + ' %';
+const CATS = ['Cancelación','Entrega','Facturación','Producto','Servicio'];
+const CATVAR = {'Cancelación':'--c-can','Entrega':'--c-ent','Facturación':'--c-fac','Producto':'--c-pro','Servicio':'--c-ser'};
+const catColor = c => css(CATVAR[c] || '--share');
+const ROLE = {ml:['Especialista ML','ml'], cd:['Ciencia de Datos','cd'], gia:['Gerencia IA','gia'], ins:['Insumo','ins']};
+const roleChips = rs => rs.map(r => `<span class="chip ${ROLE[r][1]}">${ROLE[r][0]}</span>`).join(' ');
+
+/* ---------------- Modal ---------------- */
+function codeCard(id){
+  const s = document.getElementById(id); if(!s) return '';
+  const raw = s.textContent.replace(/^\n/, '').replace(/\s+$/, '');
+  return `<div class="codecard"><div class="bar2"><span>${s.dataset.title}</span><button type="button" data-copy="${id}">Copiar</button></div><pre><code>${hl(raw)}</code></pre></div>`;
+}
+const KW = /^(def|class|return|for|in|if|else|elif|try|except|import|from|as|lambda|not|and|or|with|while|None|True|False|self|raise|pass|yield|is)$/;
+function hl(code){
+  const e = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const re = /(#[^\n]*)|((?:[rRfFbB]{1,2})?(?:"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'))|\b([A-Za-z_]\w*)\b|\b(\d+(?:\.\d+)?)\b/g;
+  let out = '', last = 0, m;
+  while ((m = re.exec(code))) {
+    out += e(code.slice(last, m.index));
+    if (m[1]) out += `<span class="py-c">${e(m[1])}</span>`;
+    else if (m[2]) out += `<span class="py-s">${e(m[2])}</span>`;
+    else if (m[3]) out += KW.test(m[3]) ? `<span class="py-k">${m[3]}</span>` : m[3];
+    else if (m[4]) out += `<span class="py-n">${m[4]}</span>`;
+    last = re.lastIndex;
+  }
+  return out + e(code.slice(last));
+}
+let lastFocus = null;
+function openModal(key){
+  const it = INFO[key]; if(!it) return;
+  lastFocus = document.activeElement;
+  const tabs = [['exp','Explicación']]; if(it.code && it.code.length) tabs.push(['code','Código Python']); if(it.result) tabs.push(['res','Resultado']);
+  const root = $('#modalRoot');
+  root.innerHTML = `<div class="overlay" data-close="1"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <header><div class="top"><div style="display:flex;flex-direction:column;gap:8px;min-width:0"><div class="row">${roleChips(it.roles||[])}</div><h3 id="mTitle">${it.title}</h3></div><button class="x" aria-label="Cerrar" data-close="1">×</button></div>
+    <div class="mtabs" role="tablist">${tabs.map((t,i)=>`<button role="tab" aria-selected="${i===0}" data-tab="${t[0]}">${t[1]}</button>`).join('')}</div></header>
+    <div class="body" id="mBody"></div></div></div>`;
+  const body = $('#mBody');
+  const show = t => {
+    root.querySelectorAll('.mtabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab===t));
+    if(t==='exp') body.innerHTML = it.exp;
+    if(t==='code') { body.innerHTML = (it.codeNote?`<p class="note">${it.codeNote}</p>`:'') + it.code.map(codeCard).join(''); }
+    if(t==='res') body.innerHTML = it.result;
+    body.scrollTop = 0;
+  };
+  show(it.startCode && it.code ? 'code' : 'exp');
+  root.querySelector('.mtabs').addEventListener('click', e => { const b=e.target.closest('button[data-tab]'); if(b) show(b.dataset.tab); });
+  root.querySelector('.overlay').addEventListener('click', e => {
+    if(e.target.dataset.close) closeModal();
+    const c = e.target.closest('button[data-copy]');
+    if(c){ const txt = document.getElementById(c.dataset.copy).textContent.replace(/^\n/,'');
+      const done = ok => { c.textContent = ok ? 'Copiado' : 'Selecciona y copia'; setTimeout(()=>c.textContent='Copiar', 1600); };
+      try { navigator.clipboard.writeText(txt).then(()=>done(true), ()=>{ selectPre(c); done(false); }); } catch(_) { selectPre(c); done(false); } }
+  });
+  root.querySelector('.x').focus();
+}
+function selectPre(btn){ const pre = btn.closest('.codecard').querySelector('pre'); const r=document.createRange(); r.selectNodeContents(pre); const s=getSelection(); s.removeAllRanges(); s.addRange(r); }
+function closeModal(){ $('#modalRoot').innerHTML=''; if(lastFocus) lastFocus.focus(); }
+document.addEventListener('keydown', e => { if(e.key==='Escape' && $('#modalRoot').innerHTML) closeModal(); });
+document.addEventListener('click', e => { const t = e.target.closest('[data-open]'); if(t){ e.preventDefault(); openModal(t.dataset.open); } });
+
+/* ---------------- Contenido de las ventanas ---------------- */
+const tbl = (head, rows) => `<div class="res-wrap"><table class="res"><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table></div>`;
+const MZ = D.matriz;
+const INFO = {
+ datos:{title:'Datos crudos: 1.200 mensajes de clientes', roles:['ins'], code:['py-carga'],
+  exp:`<p>El conjunto trae 1.200 interacciones sintéticas con 7 columnas: id, fecha, canal, texto, categoría, prioridad y satisfacción. Van de enero a junio de 2026.</p><ul><li><b>Canales:</b> correo 314 · chat 306 · web 290 · WhatsApp 290.</li><li><b>Categorías:</b> Facturación 314 · Servicio 290 · Entrega 256 · Producto 225 · <b>Cancelación 115 (9,6 %)</b>, la clase crítica.</li><li>No hay nulos. Los textos son cortos: entre 22 y 99 caracteres.</li><li>Trae ruido a propósito: 71 URL, 71 correos con datos personales, 100 emojis y signos repetidos.</li></ul>`,
+  result: tbl(['Categoría','Mensajes','%'], [['Facturación',314,'26,2'],['Servicio',290,'24,2'],['Entrega',256,'21,3'],['Producto',225,'18,8'],['Cancelación',115,'9,6']])},
+ auditoria:{title:'Actividad A · Auditoría: 10 problemas con prueba A/B', roles:['cd'], code:['py-frase','py-arnes','py-p1'],
+  exp:`<p>Antes de limpiar se auditó. El hallazgo principal: las 1.200 filas son solo <b>219 textos distintos</b> y <b>20 frases base</b> (4 por categoría) con ruido encima.</p><p>Con la partición aleatoria del laboratorio, el <b>91 %</b> de los mensajes de prueba aparece idéntico en entrenamiento, y el 100 % comparte frase base. Por eso cualquier modelo saca F1 = 1,00: memoriza.</p><p>Para cada problema se escribió una prueba A/B con el mismo clasificador, medida de dos formas: con la partición aleatoria y por grupo, con frases nunca vistas.</p>`,
+  result: tbl(['#','Problema','F1 por grupo A → B','Prioridad'], [['P1','Duplicados y fuga','1,00 aleatorio → 0,219','Alta'],['P2','Correos con ID (PII)','0,219 → 0,221','Alta'],['P3','URLs de plantilla','0,219 → 0,213','Media'],['P4','Emojis y signos','0,219 → 0,227','Baja'],['P5','Mayúsculas y tildes','0,219 → 0,219','Media'],['P6','Typos (x, paqte)','0,219 → 0,225','Media'],['P7','Negación “no”','0,240 → 0,218','Alta'],['P8','Desbalance','0,196 → 0,219','Alta'],['P9','Fuga por prioridad','0,219 → 0,321 (fuga)','Alta'],['P10','Corpus con etiqueta','se mide en C','Alta']])},
+ limpio:{title:'Texto limpio: privacidad y ruido', roles:['cd'], code:['py-limpieza','py-p7','py-p8','py-p9'],
+  exp:`<p>El texto limpio aplica cuatro transformaciones en orden: elimina el bloque <span class="mono">correo EMAIL</span> (P2), elimina <span class="mono">visita URL</span> (P3), cambia el emoji por <span class="mono">EMO_NEG</span> y colapsa signos repetidos (P4), y corrige “x” y “paqte” (P6).</p><ul><li><b>P2 es obligatorio por privacidad:</b> el número del correo coincide con el id del cliente en el 100 % de los casos.</li><li><b>P7:</b> no se quitan negaciones (“no reconozco”, “no deseo renovar”).</li><li><b>P9:</b> la prioridad queda fuera. “Alta” solo aparece en Facturación y Cancelación y se asigna después de leer el mensaje: usarla es fuga.</li></ul><p class="note">Estas limpiezas mueven el F1 menos de 0,01, dentro del ruido con 20 frases. Se adoptan por privacidad y por consistencia en producción.</p>`,
+  result: tbl(['Original','Texto limpio'], [['Quiero cancelar la suscripción 😕','Quiero cancelar la suscripción EMO_NEG'],['No responden x el chat','No responden por el chat'],['Necesito hablar con una persona asesora correo cliente5@mail.co','Necesito hablar con una persona asesora'],['la entrega llegó incompleta!!!','la entrega llegó incompleta']])},
+ cv:{title:'Validación agrupada: 4 pliegues por frase base', roles:['cd','ml'], code:['py-cv'],
+  exp:`<p><b>StratifiedGroupKFold</b> divide los datos en 4 pliegues sin partir ninguna frase base: todos los mensajes de una frase quedan juntos en entrenamiento o en prueba. Así el modelo siempre se evalúa con frases que nunca vio.</p><p>En cada pliegue quedan 5 frases de prueba, una por categoría (estratificado). Las actividades B, C y D usan exactamente los mismos 4 pliegues, para que la comparación sea justa.</p><p>La función <span class="mono">torneo()</span> entrena en cada pliegue, guarda las probabilidades fuera de pliegue (que luego usan los umbrales) y reporta F1 macro, F1 de Cancelación, F1 por canal, tiempo, rasgos y memoria.</p>`,
+  result: tbl(['Pliegue','Frases de prueba (nunca vistas)'], D.folds.map((f,i)=>[i+1, f.join(' · ')]))},
+ tfidf:{title:'Actividad B · Torneo disperso con TF-IDF', roles:['ml'], code:['py-tfidf','py-lemas','py-report'],
+  exp:`<p>Se comparan cuatro representaciones TF-IDF con el mismo clasificador (regresión logística balanceada) y los mismos pliegues.</p><ul><li><b>Palabras 1–2:</b> unigramas y bigramas.</li><li><b>Caracteres char_wb 3–5:</b> fragmentos de 3 a 5 letras dentro de cada palabra.</li><li><b>Lemas:</b> palabras llevadas a su forma base con un diccionario propio.</li><li><b>Palabras + caracteres:</b> las dos juntas.</li></ul><p>Ganan los caracteres: con frases nuevas casi no hay palabras en común, pero sí raíces como “cancel”, “cobr” o “entreg”.</p>`,
+  result: tbl(['Representación','F1 macro','F1 Cancelación','Rasgos','Memoria'], MZ.filter(r=>r.representacion.startsWith('TF-IDF')).map(r=>[r.representacion, fmt(r.F1_grupo,3), fmt(r.F1crit_grupo,3), r.n_features.toLocaleString('es-CO'), fmt(r.memoria_KB,0)+' KB']))},
+ emb:{title:'Actividad C · Embeddings Word2Vec y fastText', roles:['cd'], code:['py-emb','py-vecinos','py-docvec','py-sgns'],
+  codeNote:'gensim no estaba instalado, así que el análisis usa la clase SGNS (último bloque), una implementación en numpy del mismo algoritmo skip-gram con muestreo negativo.',
+  exp:`<p>Un <b>embedding</b> representa cada palabra con un vector denso de 50 números. Palabras que aparecen en contextos parecidos quedan cerca.</p><p>Se entrenaron con dos corpus: el <b>original</b> (800 líneas, solo 20 distintas, cada una con su categoría pegada al final) y uno <b>limpio</b> (sin ese sufijo, reentrenado en cada pliegue solo con textos de entrenamiento).</p><p>Con el corpus original el F1 llega a 0,81, pero es fuga: los vectores vieron las frases de prueba junto a su etiqueta. Con el limpio cae a 0,25–0,26.</p>`,
+  result: tbl(['Representación','F1 macro','F1 Cancelación','¿Válida?'], MZ.filter(r=>!r.representacion.startsWith('TF-IDF')).map(r=>[r.representacion, fmt(r.F1_grupo,3), fmt(r.F1crit_grupo,3), r.valida?'Sí':'No: fuga']))},
+ matriz:{title:'Matriz comparativa y campeón', roles:['ml','gia'], code:['py-matriz'],
+  exp:`<p>La matriz junta las 8 representaciones con desempeño, costo, interpretabilidad y robustez por canal. Las dos con corpus original se marcan como no válidas por fuga.</p><p><b>Regla de elección:</b> entre las válidas, las que quedan a menos de 0,01 del mejor F1 empatan, y gana la de menos rasgos. Palabras + caracteres (0,471) y caracteres (0,466) empatan; gana <b>caracteres</b>, con 961 rasgos frente a 1.141.</p>`,
+  result: tbl(['Representación','F1','F1 Canc.','Peor canal','Rasgos','Interp.','Robustez','Válida'], MZ.map(r=>[r.representacion, fmt(r.F1_grupo,3), fmt(r.F1crit_grupo,3), fmt(r.F1_peor_canal,3), r.n_features.toLocaleString('es-CO'), r.interpretabilidad_1a5, r.robustez_canal_1a5, r.valida?'Sí':'No']))},
+ umbrales:{title:'Umbrales: cuándo alertar y cuándo automatizar', roles:['gia','ml'], code:['py-umbral'],
+  exp:`<p>Por defecto un clasificador elige la clase más probable (argmax). Pero el costo de equivocarse no es igual para todas las clases, así que el comité fijó dos umbrales sobre las probabilidades del campeón:</p><ul><li><b>Alerta de Cancelación:</b> si P(Cancelación) ≥ 0,15, aunque no sea la clase más probable. Es el umbral más alto que mantiene un recall ≥ 0,75.</li><li><b>Autoclasificación:</b> solo si la confianza máxima es ≥ 0,70. Es el umbral más bajo con exactitud ≥ 90 %.</li></ul>`,
+  result: tbl(['Umbral alerta','Alertados','Precisión','Recall'], D.alertas.map(r=>[fmt(r.umbral,2), pct(r.mensajes_alertados,1), fmt(r.precision,2), fmt(r.recall,2)]))},
+ piloto:{title:'Actividad D · Piloto asistido', roles:['gia'], code:['py-ruta'], codeNote:'Este bloque es una propuesta para ilustrar la regla del comité. No forma parte del análisis original.',
+  exp:`<p><b>Decisión:</b> no desplegar un clasificador automático. Sí un piloto asistido: el modelo sugiere y un agente decide.</p><ul><li>Toda alerta de Cancelación va a la cola de retención con revisión humana.</li><li>Solo el 7 % de los mensajes (confianza ≥ 0,70) se enruta solo.</li><li>El modelo nunca cancela, renueva ni cobra.</li><li>Las correcciones de los agentes alimentan el reentrenamiento.</li></ul><p><b>Para pasar a automático:</b> F1 macro ≥ 0,80, recall de Cancelación ≥ 0,90 y ningún canal más de 0,05 por debajo del promedio.</p><p><b>Siguiente experimento:</b> recolectar 50 o más frases reales por categoría, empezando por Cancelación y Servicio.</p>`},
+};
+
+
+/* ---------------- Mapa del flujo ---------------- */
+const NODES = [
+ {k:'datos', t:'Datos crudos', s:'1.200 mensajes · 4 canales', r:['ins'], x:120, y:110, lab:'fuga',
+  cap:'Llegan 1.200 mensajes de cuatro canales en cinco categorías. Cancelación es la más pequeña (9,6 %) y la más costosa de fallar.'},
+ {k:'auditoria', t:'A · Auditoría', s:'10 problemas con A/B', r:['cd'], x:360, y:110, lab:'fuga',
+  cap:'La auditoría encuentra que solo hay 20 frases base. Con partición aleatoria, el 91 % del test ya estaba en entrenamiento: el F1 de 1,00 era memoria.'},
+ {k:'limpio', t:'Texto limpio', s:'PII, URL, emojis, typos', r:['cd'], x:600, y:110, lab:'ngramas',
+  cap:'Se eliminan correos con ID de cliente y URLs, se normalizan emojis y signos, y se corrigen typos. La prioridad se excluye porque es fuga.'},
+ {k:'cv', t:'Validación agrupada', s:'4 pliegues por frase base', r:['cd','ml'], x:840, y:110, lab:'fuga',
+  cap:'Cada pliegue deja fuera 5 frases completas. El modelo siempre se evalúa con frases que nunca vio, y todos los modelos usan los mismos pliegues.'},
+ {k:'tfidf', t:'B · Torneo disperso', s:'4 variantes TF-IDF', r:['ml'], x:1080, y:110, lab:'tfidf',
+  cap:'Gana TF-IDF de caracteres (0,47) frente a palabras (0,21): con frases nuevas no hay palabras en común, pero sí raíces como “cancel” o “cobr”.'},
+ {k:'emb', t:'C · Embeddings', s:'Word2Vec y fastText', r:['cd'], x:1080, y:330, lab:'emb3d',
+  cap:'Con el corpus original los embeddings llegan a 0,81 porque la etiqueta venía pegada a cada frase. Limpios, caen a 0,26. fastText sí resuelve palabras mal escritas.'},
+ {k:'matriz', t:'Matriz comparativa', s:'8 representaciones', r:['ml','gia'], x:840, y:330, lab:'torneo',
+  cap:'Dos representaciones quedan fuera por fuga. Entre las válidas empatan caracteres y palabras + caracteres; gana la más simple.'},
+ {k:'umbrales', t:'Umbrales', s:'Alerta 0,15 · Auto 0,70', r:['gia','ml'], x:600, y:330, lab:'umbrales',
+  cap:'Alerta de Cancelación con probabilidad ≥ 0,15 (recupera 79 %) y autoclasificación solo con confianza ≥ 0,70 (7 % de los mensajes).'},
+ {k:'piloto', t:'D · Piloto asistido', s:'Humano decide al final', r:['gia'], x:360, y:330, lab:'umbrales',
+  cap:'El comité no automatiza todavía: el modelo sugiere, un agente decide y nunca se ejecutan acciones sobre el cliente. Siguiente paso: más frases reales.'},
+];
+const svg = $('#flow'); const NS='http://www.w3.org/2000/svg';
+const sv = (tag, a={}) => { const e=document.createElementNS(NS, tag); for(const k in a) e.setAttribute(k, a[k]); return e; };
+const W=210, H=92;
+const SHORT = {ml:'ML', cd:'Ciencia de Datos', gia:'Gerencia IA', ins:'Insumo'};
+let dPath = `M ${NODES[0].x} ${NODES[0].y}`;
+for(let i=1;i<NODES.length;i++){
+  const a=NODES[i-1], b=NODES[i];
+  if(a.y!==b.y) dPath += ` C ${a.x+150} ${a.y}, ${b.x+150} ${b.y}, ${b.x} ${b.y}`; else dPath += ` L ${b.x} ${b.y}`;
+}
+const path = sv('path',{d:dPath, class:'flow-path'+(RM?'':' live')}); svg.appendChild(path);
+const pGroup = sv('g'); svg.appendChild(pGroup);
+const nodeEls = {};
+NODES.forEach((n,i) => {
+  const g = sv('g',{class:'node', tabindex:'0', role:'button', 'aria-label':`${n.t}: ${n.s}. Abrir detalle`, transform:`translate(${n.x-W/2} ${n.y-H/2})`});
+  g.appendChild(sv('rect',{class:'box', width:W, height:H, rx:12}));
+  const rc = n.r[0]==='ins' ? '--muted' : (n.r[0]==='ml'?'--ml':n.r[0]==='cd'?'--cd':'--gia');
+  const st = sv('rect',{class:'stripe', width:6, height:H-24, x:10, y:12, rx:3}); st.style.fill = `var(${rc})`; g.appendChild(st);
+  const t0 = sv('text',{x:26, y:24, class:'t2'}); t0.textContent = String(i+1).padStart(2,'0') + ' · ' + n.r.map(r=>SHORT[r]).join(' + '); g.appendChild(t0);
+  const t1 = sv('text',{x:26, y:52, class:'t1'}); t1.textContent = n.t; g.appendChild(t1);
+  const t2 = sv('text',{x:26, y:74, class:'t2'}); t2.textContent = n.s; g.appendChild(t2);
+  g.addEventListener('click', () => { setTour(i, false); openModal(n.k); });
+  g.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); setTour(i,false); openModal(n.k);} });
+  svg.appendChild(g); nodeEls[n.k]=g;
+});
+// Leyenda de categorías
+$('#catLegend').innerHTML = CATS.map(c=>`<span><i style="background:var(${CATVAR[c]})"></i>${c}</span>`).join('');
+
+// Partículas: mensajes que viajan por el flujo
+const plen = path.getTotalLength();
+const PARTS = [];
+const weights = [115,256,314,225,290];
+for(let i=0;i<34;i++){
+  let r=Math.random()*1200, ci=0; for(;ci<5;ci++){ r-=weights[ci]; if(r<0) break; } ci=Math.min(ci,4);
+  const c = sv('circle',{r:5}); c.style.fill=`var(${CATVAR[CATS[ci]]})`; pGroup.appendChild(c);
+  PARTS.push({c, s:Math.random(), v:.035+Math.random()*.03, off:(Math.random()-.5)*16, cat:CATS[ci]});
+}
+function placeParts(dt){
+  PARTS.forEach(p => {
+    p.s += p.v*dt; if(p.s>1) p.s -= 1;
+    const pt = path.getPointAtLength(p.s*plen);
+    p.c.setAttribute('cx', pt.x); p.c.setAttribute('cy', pt.y + p.off);
+  });
+}
+let lastT=null, flowVisible=true;
+function loop(t){ if(lastT===null) lastT=t; const dt=Math.min(.05,(t-lastT)/1000); lastT=t; if(flowVisible) placeParts(dt); requestAnimationFrame(loop); }
+if(RM){ placeParts(0); } else requestAnimationFrame(loop);
+if('IntersectionObserver' in window){ new IntersectionObserver(es=>{ flowVisible = es[0].isIntersecting; }).observe(svg); }
+
+// Recorrido guiado
+let tourIdx = -1, tourTimer = null;
+function setTour(i, fromPlay){
+  tourIdx = (i+NODES.length)%NODES.length; const n = NODES[tourIdx];
+  Object.values(nodeEls).forEach(e=>e.classList.remove('active')); nodeEls[n.k].classList.add('active');
+  $('#tourStep').textContent = `Etapa ${tourIdx+1} de ${NODES.length} · ${n.r.map(r=>ROLE[r][0]).join(' + ')}`;
+  $('#tourTitle').textContent = n.t; $('#tourText').textContent = n.cap;
+  if(!fromPlay) stopTour();
+}
+function stopTour(){ if(tourTimer){ clearInterval(tourTimer); tourTimer=null; $('#tourPlay').textContent='Iniciar recorrido'; } }
+$('#tourPlay').addEventListener('click', () => {
+  if(tourTimer){ stopTour(); return; }
+  setTour(tourIdx<0?0:tourIdx, true); $('#tourPlay').textContent='Pausar';
+  tourTimer = setInterval(()=>{ if(tourIdx===NODES.length-1){ stopTour(); return; } setTour(tourIdx+1, true); }, 6000);
+});
+$('#tourPrev').addEventListener('click', ()=>setTour(tourIdx<0?0:tourIdx-1, false));
+$('#tourNext').addEventListener('click', ()=>setTour(tourIdx+1, false));
+$('#tourOpen').addEventListener('click', ()=>{ const n=NODES[tourIdx<0?0:tourIdx]; INFO[n.k].startCode=true; openModal(n.k); INFO[n.k].startCode=false; });
+
+/* ---------------- Laboratorios ---------------- */
+const LABS = [
+ ['fuga','Frase base y fuga'],['tfidf','TF-IDF'],['ngramas','N-gramas de caracteres'],['f1','F1 macro'],
+ ['umbrales','Umbrales'],['emb3d','Embeddings en 3D'],['oov','Palabras fuera de vocabulario'],['torneo','Resultado del torneo']];
+const host = $('#labHost'), tabsEl = $('#labTabs');
+const builders = {};
+let activeLab = null, labCleanup = null;
+LABS.forEach(([k,n]) => { const b = el('button',{role:'tab','aria-selected':'false','data-lab':k,type:'button'}, n); b.addEventListener('click', ()=>showLab(k)); tabsEl.appendChild(b); });
+function showLab(k){
+  if(labCleanup){ labCleanup(); labCleanup=null; }
+  activeLab=k; tabsEl.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected', b.dataset.lab===k));
+  host.innerHTML=''; const r = builders[k](host); if(typeof r==='function') labCleanup=r;
+}
+document.addEventListener('click', e => { const t=e.target.closest('[data-golab]'); if(t){ showLab(t.dataset.golab); document.getElementById('labs').scrollIntoView({behavior:RM?'auto':'smooth'}); } });
+function labShell(side, stage){ const L = el('div',{class:'lab'}); const s=el('div',{class:'side'}, side); const g=el('div',{class:'stage'}, stage); L.append(s,g); return L; }
+function setupCanvas(cv, h){
+  const dpr = Math.min(2, window.devicePixelRatio||1);
+  const resize = () => { const w = cv.clientWidth; cv.width = w*dpr; cv.height = h*dpr; cv.style.height = h+'px'; };
+  resize(); const ctx = cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx, dpr, resize: () => { resize(); ctx.setTransform(dpr,0,0,dpr,0,0); }};
+}
+
+/* Lab 1: frase base y fuga */
+Object.assign(INFO, {
+ 'lab-fuga':{title:'Frase base, partición y fuga', roles:['cd'], code:['py-frase','py-p1','py-cv'], exp:INFO.auditoria.exp}
+});
+builders.fuga = (h) => {
+  h.appendChild(labShell(`
+    <h3>1.200 mensajes, 20 frases</h3>
+    <p>Cada punto es un mensaje. Al <b>agruparlos por frase base</b> se ve que el dataset son 20 frases repetidas con ruido.</p>
+    <p>Luego compara las particiones. En la <b>aleatoria</b>, cada frase tiene mensajes en entrenamiento y en prueba: el modelo ya “vio” la respuesta. En la <b>agrupada</b>, frases completas quedan fuera.</p>
+    <div class="row"><button class="btn" id="fg-group" aria-pressed="false">Agrupar por frase base</button></div>
+    <label class="f">Partición
+      <select id="fg-part"><option value="none">Sin partición</option><option value="rand">Aleatoria 75/25 (laboratorio)</option><option value="0">Agrupada · pliegue 1</option><option value="1">Agrupada · pliegue 2</option><option value="2">Agrupada · pliegue 3</option><option value="3">Agrupada · pliegue 4</option></select></label>
+    <button class="btn codebtn" data-open="lab-fuga" type="button">Ver código Python</button>`,
+    `<canvas id="fg-cv" aria-label="Mensajes como puntos agrupados por frase base"></canvas>
+     <div class="legend">${CATS.map(c=>`<span><i style="background:var(${CATVAR[c]})"></i>${c}</span>`).join('')}<span><i style="background:transparent;border:2px solid var(--ink)"></i>Prueba</span></div>
+     <div class="stat-row" id="fg-stats"></div>`));
+  const cv = $('#fg-cv'); const C = setupCanvas(cv, 380);
+  const groups = D.frases; const gIndex = {}; groups.forEach((g,i)=>gIndex[g.grupo]=i);
+  const pts = []; groups.forEach((g,gi)=>{ for(let k=0;k<g.n;k++) pts.push({g:gi, cat:g.categoria, rx:Math.random(), ry:Math.random(), jx:Math.random(), jy:Math.random(), test:false, x:0,y:0}); });
+  let grouped=false, part='none', anim=1, raf=0;
+  const target = (p, w, hh) => {
+    if(!grouped) return [14+p.rx*(w-28), 14+p.ry*(hh-28)];
+    const g = groups[p.g]; const col = CATS.indexOf(g.categoria); const row = groups.filter(x=>x.categoria===g.categoria).indexOf(g);
+    const cw = w/5, rh = (hh-30)/4; const cx = cw*col + cw/2, cy = 30 + rh*row + rh/2;
+    const rad = Math.min(cw, rh)*0.36*Math.sqrt(p.jx); const ang = p.jy*Math.PI*2;
+    return [cx + rad*Math.cos(ang), cy + rad*Math.sin(ang)];
+  };
+  function assignPart(){
+    if(part==='none') pts.forEach(p=>p.test=false);
+    else if(part==='rand') pts.forEach(p=>p.test=Math.random()<.25);
+    else { const set = new Set(D.folds[+part]); pts.forEach(p=>p.test=set.has(groups[p.g].grupo)); }
+    const st = $('#fg-stats');
+    if(part==='none') st.innerHTML = `<div class="stat"><span class="v">1.200</span><span class="k">mensajes</span></div><div class="stat"><span class="v">219</span><span class="k">textos distintos</span></div><div class="stat"><span class="v">20</span><span class="k">frases base</span></div>`;
+    else if(part==='rand') st.innerHTML = `<div class="stat"><span class="v" style="color:var(--leak)">91 %</span><span class="k">del test idéntico en train</span></div><div class="stat"><span class="v" style="color:var(--leak)">100 %</span><span class="k">del test con frase ya vista</span></div><div class="stat"><span class="v" style="color:var(--leak)">1,00</span><span class="k">F1 macro: memoria</span></div>`;
+    else st.innerHTML = `<div class="stat"><span class="v">5 de 20</span><span class="k">frases nunca vistas en prueba</span></div><div class="stat"><span class="v">0,22</span><span class="k">F1 macro con palabras</span></div><div class="stat"><span class="v" style="color:var(--ml)">0,47</span><span class="k">F1 macro con caracteres</span></div>`;
+  }
+  function draw(){
+    const ctx=C.ctx, w=cv.clientWidth, hh=380; ctx.clearRect(0,0,w,hh);
+    const e = anim<1 ? 1-Math.pow(1-anim,3) : 1;
+    if(grouped && e>.9){ ctx.fillStyle=css('--muted'); ctx.font='600 12px '+css('--f-body'); ctx.textAlign='center'; CATS.forEach((c,i)=>ctx.fillText(c, w/5*i+w/10, 18)); }
+    const ink = css('--ink'); const cols = {}; CATS.forEach(c=>cols[c]=catColor(c));
+    pts.forEach(p=>{ const [tx,ty]=target(p,w,hh); p.x = p.sx+(tx-p.sx)*e; p.y = p.sy+(ty-p.sy)*e;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.test?3.4:2.6,0,7); ctx.fillStyle=cols[p.cat]; ctx.globalAlpha = (part!=='none' && !p.test)?.35:.95; ctx.fill(); ctx.globalAlpha=1;
+      if(p.test){ ctx.lineWidth=1.2; ctx.strokeStyle=ink; ctx.stroke(); } });
+  }
+  function run(){ pts.forEach(p=>{p.sx=p.x;p.sy=p.y;}); anim=0; cancelAnimationFrame(raf); const t0=performance.now(); const step=t=>{ anim=Math.min(1,(t-t0)/900); draw(); if(anim<1) raf=requestAnimationFrame(step); }; if(RM){anim=1;draw();} else raf=requestAnimationFrame(step); }
+  pts.forEach(p=>{ const [x,y]=target(p,cv.clientWidth,380); p.x=p.sx=x;p.y=p.sy=y; });
+  assignPart(); draw();
+  $('#fg-group').addEventListener('click', e=>{ grouped=!grouped; e.target.setAttribute('aria-pressed', grouped); e.target.textContent = grouped?'Dispersar':'Agrupar por frase base'; run(); });
+  $('#fg-part').addEventListener('change', e=>{ part=e.target.value; if(part!=='none' && !grouped){ grouped=true; $('#fg-group').setAttribute('aria-pressed',true); $('#fg-group').textContent='Dispersar'; } assignPart(); run(); });
+  // tooltip de frase
+  cv.addEventListener('pointermove', e=>{ if(!grouped) { cv.title=''; return; } const r=cv.getBoundingClientRect(); const x=e.clientX-r.left, y=e.clientY-r.top; let best=null,bd=1e9; pts.forEach(p=>{ const d=(p.x-x)**2+(p.y-y)**2; if(d<bd){bd=d;best=p;} }); cv.title = best && bd<400 ? `${groups[best.g].grupo} (${groups[best.g].n} mensajes)` : ''; });
+  const onR = ()=>{ C.resize(); pts.forEach(p=>{ const [x,y]=target(p,cv.clientWidth,380); p.sx=x;p.sy=y; }); anim=1; draw(); }; window.addEventListener('resize', onR);
+  return ()=>{ cancelAnimationFrame(raf); window.removeEventListener('resize', onR); };
+};
+
+/* Lab 2: TF-IDF */
+Object.assign(INFO, {'lab-tfidf':{title:'TF-IDF en el torneo', roles:['ml'], code:['py-tfidf','py-g-params'], codeNote:'El laboratorio de esta página calcula TF-IDF sobre las 20 frases base para que se vea el mecanismo. El análisis lo calcula sobre los mensajes de entrenamiento de cada pliegue, con sublinear_tf=True y min_df=2.',
+ exp:`<p><b>TF-IDF</b> convierte un texto en un vector con un peso por término.</p><ul><li><b>TF</b> (frecuencia del término): cuántas veces aparece en el texto.</li><li><b>IDF</b> (frecuencia inversa de documento): baja el peso de los términos que aparecen en muchos textos, como “la” o “de”, y sube el de los raros, como “suscripción”.</li><li>Cada vector se normaliza (norma L2) para que textos largos y cortos sean comparables.</li></ul><p>BoW (bolsa de palabras) es lo mismo sin el IDF: solo conteos.</p>`}});
+builders.tfidf = (h) => {
+  h.appendChild(labShell(`
+    <h3>Peso de cada término</h3>
+    <p>El corpus de este ejemplo son las <b>20 frases base</b>. Elige una y mira cómo el IDF premia lo raro y castiga lo común.</p>
+    <label class="f">Frase<select id="tf-sel">${D.frases.map((f,i)=>`<option value="${i}">${f.grupo} (${f.categoria})</option>`).join('')}</select></label>
+    <label class="f" style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)"><input type="checkbox" id="tf-bi"> Incluir bigramas (ngram_range=(1, 2))</label>
+    <div class="formula">idf(t) = ln((1 + n) / (1 + df(t))) + 1 &nbsp;·&nbsp; peso = tf × idf, luego norma L2</div>
+    <button class="btn codebtn" data-open="lab-tfidf" type="button">Ver código Python</button>`,
+    `<div style="overflow-x:auto"><table class="tf-table" id="tf-t"></table></div><p class="note" id="tf-note"></p>`));
+  const docs = D.frases.map(f=>f.grupo);
+  const toks = (s, bi) => { const u = (s.toLowerCase().match(/[\p{L}\p{N}_]{2,}/gu)||[]); if(!bi) return u; const b=[]; for(let i=0;i<u.length-1;i++) b.push(u[i]+' '+u[i+1]); return u.concat(b); };
+  function render(){
+    const i=+$('#tf-sel').value, bi=$('#tf-bi').checked; const n=docs.length;
+    const df={}; docs.forEach(d=>new Set(toks(d,bi)).forEach(t=>df[t]=(df[t]||0)+1));
+    const tf={}; toks(docs[i],bi).forEach(t=>tf[t]=(tf[t]||0)+1);
+    let rows = Object.keys(tf).map(t=>{ const idf=Math.log((1+n)/(1+df[t]))+1; return {t, tf:tf[t], df:df[t], idf, w:tf[t]*idf}; });
+    const norm = Math.sqrt(rows.reduce((a,r)=>a+r.w*r.w,0)); rows.forEach(r=>r.w/=norm); rows.sort((a,b)=>b.w-a.w);
+    const max = rows[0].w;
+    $('#tf-t').innerHTML = `<tr><th>Término</th><th>tf</th><th>df (de 20)</th><th>idf</th><th style="width:38%">Peso TF-IDF</th></tr>` + rows.map(r=>`<tr><td class="mono">${r.t}</td><td>${r.tf}</td><td>${r.df}</td><td>${fmt(r.idf,2)}</td><td><div style="display:flex;gap:8px;align-items:center"><div class="bar" data-w="${(r.w/max*100).toFixed(1)}" style="background:${r.df>3?'var(--share)':'var(--ml)'}"></div><span>${fmt(r.w,2)}</span></div></td></tr>`).join('');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>$('#tf-t').querySelectorAll('.bar').forEach(b=>b.style.width=b.dataset.w+'%')));
+    const top=rows[0], low=rows[rows.length-1];
+    $('#tf-note').innerHTML = `“<b>${top.t}</b>” pesa más porque aparece en ${top.df} de 20 frases. “<b>${low.t}</b>” pesa menos porque aparece en ${low.df}. Las barras grises son términos comunes (df > 3).`;
+  }
+  $('#tf-sel').addEventListener('change', render); $('#tf-bi').addEventListener('change', render);
+  $('#tf-sel').value = String(D.frases.findIndex(f=>f.grupo==='quiero cancelar la suscripción')); render();
+};
+
+/* Lab 3: n-gramas de caracteres */
+Object.assign(INFO, {'lab-ngramas':{title:'N-gramas de caracteres (char_wb 3–5)', roles:['ml'], code:['py-tfidf'],
+ exp:`<p>Con <span class="mono">analyzer='char_wb'</span> y <span class="mono">ngram_range=(3, 5)</span>, cada palabra se rodea de espacios y se corta en fragmentos de 3, 4 y 5 letras. Cada fragmento es un rasgo.</p><p>Dos palabras distintas pueden compartir muchos fragmentos: “cancelar” y “cancelación” no comparten la palabra, pero sí <span class="mono">canc</span>, <span class="mono">cance</span>, <span class="mono">ancel</span>… Por eso los caracteres generalizan mejor a frases nuevas y toleran errores de escritura.</p><p>El costo: más rasgos (961 frente a 180) y menos interpretabilidad.</p>`}});
+builders.ngramas = (h) => {
+  h.appendChild(labShell(`
+    <h3>Una ventana que recorre la palabra</h3>
+    <p>Escribe dos palabras y mira qué fragmentos comparten. Para TF-IDF de palabras son rasgos distintos; para caracteres, se parecen.</p>
+    <div class="row">${[['cancelar','cancelación'],['cobro','cobraron'],['entrega','entregado'],['factura','facturacionn'],['paquete','paqte']].map(p=>`<button class="btn" type="button" data-pair="${p.join('|')}">${p[0]} / ${p[1]}</button>`).join('')}</div>
+    <div class="pair"><label class="f">Palabra 1<input type="text" id="ng-a" value="cancelar"></label><label class="f">Palabra 2<input type="text" id="ng-b" value="cancelación"></label></div>
+    <button class="btn codebtn" data-open="lab-ngramas" type="button">Ver código Python</button>`,
+    `<div><span class="eyebrow">Ventana deslizante sobre la palabra 1</span><div><span class="word-track" id="ng-track"></span></div></div>
+     <div class="stat-row" id="ng-stats"></div>
+     <div class="pair"><div><span class="eyebrow" id="ng-la"></span><div class="grams" id="ng-ga"></div></div><div><span class="eyebrow" id="ng-lb"></span><div class="grams" id="ng-gb"></div></div></div>`));
+  const grams = w => { const s=' '+w.toLowerCase().trim()+' '; const out=[]; for(let n=3;n<=5;n++) for(let i=0;i+n<=s.length;i++) out.push(s.slice(i,i+n)); return out; };
+  let timer=null;
+  function render(){
+    const a=$('#ng-a').value.trim()||'cancelar', b=$('#ng-b').value.trim()||'cancelación';
+    const ga=grams(a), gb=grams(b); const sb=new Set(gb), sa=new Set(ga);
+    const shared=[...new Set(ga.filter(g=>sb.has(g)))]; const union=new Set([...ga,...gb]);
+    $('#ng-stats').innerHTML = `<div class="stat"><span class="v">${a.toLowerCase()===b.toLowerCase()?1:0}</span><span class="k">palabras compartidas</span></div><div class="stat"><span class="v" style="color:var(--cd)">${shared.length}</span><span class="k">n-gramas compartidos</span></div><div class="stat"><span class="v">${pct(shared.length/union.size)}</span><span class="k">similitud (Jaccard)</span></div>`;
+    $('#ng-la').textContent=`“${a}” · ${ga.length} n-gramas`; $('#ng-lb').textContent=`“${b}” · ${gb.length} n-gramas`;
+    const chips=(arr,other)=>arr.map((g,i)=>`<span class="gram${other.has(g)?' shared':''}" style="animation-delay:${RM?0:i*25}ms">${g.replace(/ /g,'␣')}</span>`).join('');
+    $('#ng-ga').innerHTML=chips(ga,sb); $('#ng-gb').innerHTML=chips(gb,sa);
+    // ventana deslizante
+    const s=' '+a.toLowerCase()+' '; const tr=$('#ng-track'); tr.innerHTML = s.replace(/ /g,'␣') + '<span class="win"></span>';
+    const win=tr.querySelector('.win'); const cw = tr.getBoundingClientRect().width / s.length;
+    clearInterval(timer); let n=3,i=0;
+    const tick=()=>{ win.style.left=(i*cw)+'px'; win.style.width=(n*cw)+'px'; i++; if(i+n>s.length){ i=0; n = n===5?3:n+1; } };
+    tick(); if(!RM) timer=setInterval(tick, 420);
+  }
+  h.querySelectorAll('[data-pair]').forEach(bn=>bn.addEventListener('click',()=>{ const [a,b]=bn.dataset.pair.split('|'); $('#ng-a').value=a; $('#ng-b').value=b; render(); }));
+  $('#ng-a').addEventListener('input', render); $('#ng-b').addEventListener('input', render);
+  render();
+  return ()=>clearInterval(timer);
+};
+
+/* Lab 4: F1 macro */
+Object.assign(INFO, {'lab-f1':{title:'F1 macro, precisión y recall', roles:['ml'], code:['py-report','py-cv'],
+ exp:`<p>Para cada clase:</p><ul><li><b>Precisión</b> = aciertos / todo lo que el modelo predijo como esa clase. ¿Cuántas alarmas eran ciertas?</li><li><b>Recall</b> = aciertos / todos los casos reales de esa clase. ¿Cuántos casos encontró?</li><li><b>F1</b> = media armónica de las dos: 2·P·R / (P + R).</li></ul><p><b>F1 macro</b> es el promedio simple del F1 de las 5 clases. Cada clase pesa igual, así que Cancelación (115 mensajes) cuenta tanto como Facturación (314). Por eso es mejor que la exactitud cuando hay desbalance.</p>`}});
+builders.f1 = (h) => {
+  h.appendChild(labShell(`
+    <h3>Matriz de confusión del campeón</h3>
+    <p>Predicciones fuera de pliegue de TF-IDF de caracteres sobre los 1.200 mensajes. Filas: clase real. Columnas: clase predicha. Haz clic en una clase.</p>
+    <div id="f1-detail" class="stat-row"></div>
+    <p class="note" id="f1-note"></p>
+    <button class="btn codebtn" data-open="lab-f1" type="button">Ver código Python</button>`,
+    `<div class="cm-wrap"><table class="cm" id="cm"></table></div><div class="f1bars" id="f1bars"></div>`));
+  const cm=D.cm, K=D.clases; const tot = cm.flat().reduce((a,b)=>a+b,0);
+  const per = K.map((c,i)=>{ const tp=cm[i][i], fn=cm[i].reduce((a,b)=>a+b,0)-tp, fp=cm.reduce((a,r)=>a+r[i],0)-tp; const p=tp+fp?tp/(tp+fp):0, r=tp+fn?tp/(tp+fn):0, f=p+r?2*p*r/(p+r):0; return {c,tp,fp,fn,p,r,f}; });
+  const macro = per.reduce((a,x)=>a+x.f,0)/K.length, acc = K.reduce((a,_,i)=>a+cm[i][i],0)/tot;
+  const max = Math.max(...cm.flat());
+  let sel = K.indexOf('Cancelación');
+  function render(){
+    const ink=css('--ink');
+    $('#cm').innerHTML = `<tr><th></th>${K.map(c=>`<th>${c.slice(0,5)}.</th>`).join('')}</tr>` + K.map((c,i)=>`<tr><th class="rl" data-i="${i}">${c}</th>${cm[i].map((v,j)=>{ const a = v/max; const col = i===j ? catColor(c) : css('--leak'); const sl = (i===sel||j===sel); return `<td data-i="${i}" class="${i===sel&&j===sel?'sel':''}" style="background:${v?col:'transparent'};background:color-mix(in srgb, ${col} ${Math.round(a*85+ (v?8:0))}%, transparent);color:${a>.45?css('--surface'):ink};opacity:${sl?1:.55}">${v}</td>`; }).join('')}</tr>`).join('');
+    const x=per[sel];
+    $('#f1-detail').innerHTML = `<div class="stat"><span class="v">${x.tp}</span><span class="k">aciertos (TP)</span></div><div class="stat"><span class="v">${x.fp}</span><span class="k">falsas alarmas (FP)</span></div><div class="stat"><span class="v">${x.fn}</span><span class="k">casos perdidos (FN)</span></div><div class="stat"><span class="v">${fmt(x.f)}</span><span class="k">F1 de ${x.c}</span></div>`;
+    $('#f1-note').innerHTML = `Precisión = ${x.tp} / (${x.tp} + ${x.fp}) = <b>${fmt(x.p)}</b> · Recall = ${x.tp} / (${x.tp} + ${x.fn}) = <b>${fmt(x.r)}</b> · F1 = 2 × ${fmt(x.p)} × ${fmt(x.r)} / (${fmt(x.p)} + ${fmt(x.r)}) = <b>${fmt(x.f)}</b>.<br>La exactitud global es ${fmt(acc)}, pero el F1 macro es ${fmt(macro)}: dos clases en cero lo hunden. Con el promedio por pliegue, el F1 macro es 0,47.`;
+    $('#f1bars').innerHTML = per.map(p=>`<div class="f1bar"><span>${p.c}</span><div class="track"><div class="fill" data-w="${p.f*100}" style="background:${catColor(p.c)}"></div></div><b class="tab-num">${fmt(p.f)}</b></div>`).join('') + `<div class="f1bar avg"><span><b>F1 macro</b></span><div class="track"><div class="fill" data-w="${macro*100}"></div></div><b class="tab-num">${fmt(macro)}</b></div><div class="f1bar"><span style="color:var(--muted)">Exactitud</span><div class="track"><div class="fill" data-w="${acc*100}" style="background:var(--share)"></div></div><b class="tab-num" style="color:var(--muted)">${fmt(acc)}</b></div>`;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>$('#f1bars').querySelectorAll('.fill').forEach(f=>f.style.width=f.dataset.w+'%')));
+  }
+  $('#cm').addEventListener('click', e=>{ const t=e.target.closest('[data-i]'); if(t){ sel=+t.dataset.i; render(); } });
+  render();
+};
+
+/* Lab 5: umbrales */
+Object.assign(INFO, {'lab-umbrales':INFO.umbrales});
+builders.umbrales = (h) => {
+  const A=D.alertas, Cb=D.cobertura.filter(r=>r.exactitud_automatica>=0);
+  h.appendChild(labShell(`
+    <h3>Mueve los umbrales</h3>
+    <p>Las probabilidades salen del campeón, con predicciones fuera de pliegue. Los valores marcados con ★ son los que eligió el comité.</p>
+    <label class="f">Alerta de Cancelación si P(Cancelación) ≥ <span id="u1v" class="mono" style="color:var(--ink)"></span>
+      <input type="range" id="u1" min="0" max="${A.length-1}" step="1" value="${A.findIndex(r=>r.umbral===0.15)}"></label>
+    <label class="f">Autoclasificar si la confianza ≥ <span id="u2v" class="mono" style="color:var(--ink)"></span>
+      <input type="range" id="u2" min="0" max="${Cb.length-1}" step="1" value="${Cb.findIndex(r=>r.umbral===0.7)}"></label>
+    <p class="note">Bajar el umbral de alerta encuentra más cancelaciones a cambio de más falsas alarmas. Para el negocio, perder un cliente cuesta más que revisar una alerta.</p>
+    <button class="btn codebtn" data-open="lab-umbrales" type="button">Ver código Python</button>`,
+    `<div><span class="eyebrow">Las 115 cancelaciones reales: encontradas por la alerta</span><div class="dots" id="u-dots" style="margin-top:8px"></div></div>
+     <div class="stat-row" id="u-s1"></div>
+     <div><span class="eyebrow">Destino de los 1.200 mensajes</span><div class="split" id="u-split" style="margin-top:8px"></div></div>
+     <div class="stat-row" id="u-s2"></div>`));
+  $('#u-dots').innerHTML = Array.from({length:115},()=>'<i></i>').join('');
+  function render(){
+    const a=A[+$('#u1').value], c=Cb[+$('#u2').value];
+    $('#u1v').textContent = fmt(a.umbral,2)+(a.umbral===0.15?' ★':''); $('#u2v').textContent = fmt(c.umbral,1)+(c.umbral===0.7?' ★':'');
+    const found = Math.round(a.recall*115);
+    $('#u-dots').querySelectorAll('i').forEach((d,i)=>d.classList.toggle('on', i<found));
+    const alerted = Math.round(a.mensajes_alertados*1200);
+    $('#u-s1').innerHTML = `<div class="stat"><span class="v">${pct(a.recall)}</span><span class="k">recall: ${found} de 115 encontradas</span></div><div class="stat"><span class="v">${pct(a.precision)}</span><span class="k">precisión de la alerta</span></div><div class="stat"><span class="v">${alerted.toLocaleString('es-CO')}</span><span class="k">mensajes alertados (${pct(a.mensajes_alertados)})</span></div>`;
+    const auto = Math.round(c.cobertura_automatica*1200);
+    const sAlert = alerted, sAuto = Math.max(0, Math.min(auto, 1200-sAlert)), sAg = 1200-sAlert-sAuto;
+    const seg=(n,lab,col)=>`<div style="flex:0 0 ${n/12}%;background:${col}" title="${lab}: ${n}">${n/12>9?lab+' '+n:''}</div>`;
+    $('#u-split').innerHTML = seg(sAlert,'Retención','var(--c-can)')+seg(sAuto,'Automático','var(--ml)')+seg(sAg,'Agente','var(--share)');
+    $('#u-s2').innerHTML = `<div class="stat"><span class="v">${pct(c.cobertura_automatica,1)}</span><span class="k">cobertura automática</span></div><div class="stat"><span class="v">${pct(c.exactitud_automatica)}</span><span class="k">exactitud de lo automático</span></div><div class="stat"><span class="v">${sAg.toLocaleString('es-CO')}</span><span class="k">van a un agente (aprox.)</span></div>`;
+  }
+  $('#u1').addEventListener('input', render); $('#u2').addEventListener('input', render); render();
+};
+
+/* Lab 6: embeddings 3D */
+const VEC = {
+ 'Word2Vec original':{factura:['incorrecto','valor','tiene','un'],cobro:['en','reconozco','cuenta','mi'],cancelar:['quiero','suscripción','confirmen','inmediata'],entrega:['incompleta','cambien','dirección','todavía'],'garantía':['información','funcionar','averiado','dejó'],servicio:['respuesta','proceso','responden','organización']},
+ 'fastText original':{factura:['valor','un','facturación','tiene'],cobro:['en','reconozco','mi','cuenta'],cancelar:['suscripción','quiero','cancelación','confirmen'],entrega:['incompleta','todavía','lo','cambien'],'garantía':['funcionar','información','averiado','producto'],servicio:['respuesta','proceso','solicito','organización']},
+ 'Word2Vec limpio':{factura:['mes','incorrecto','copia','me'],cobro:['en','reconozco','cuenta','mi'],cancelar:['suscripción','quiero','confirmen','inmediata'],entrega:['incompleta','cambien','dirección','averiado'],'garantía':['información','copia','necesito','funcionar'],servicio:['terminar','solicito','averiado','artículo']},
+ 'fastText limpio':{factura:['mes','me','copia','incorrecto'],cobro:['reconozco','cuenta','mi','en'],cancelar:['cancelación','suscripción','quiero','inmediata'],entrega:['cambien','incompleta','dirección','entregado'],'garantía':['información','copia','necesito','funcionar'],servicio:['solicito','terminar','funcionar','plan']}
+};
+Object.assign(INFO, {'lab-emb3d':{title:'Embeddings: palabras como puntos en el espacio', roles:['cd'], code:['py-emb','py-vecinos','py-sgns'], codeNote:INFO.emb.codeNote,
+ exp:INFO.emb.exp + `<p><b>Similitud coseno:</b> mide el ángulo entre dos vectores. Los vecinos son las palabras con mayor coseno.</p><p class="note">La vista 3D es un PCA de los vectores de 50 dimensiones, así que las distancias son aproximadas. Las líneas unen cada término con sus 4 vecinos reales, calculados con los 50 números completos.</p>`}});
+builders.emb3d = (h) => {
+  h.appendChild(labShell(`
+    <h3>El espacio de los embeddings</h3>
+    <p>Arrastra para girar. Cada punto es una palabra del vocabulario, coloreada por la categoría de las frases en que aparece.</p>
+    <label class="f">Modelo y corpus<select id="e-mod">${Object.keys(D.emb).map(k=>`<option>${k}</option>`).join('')}</select></label>
+    <div class="row" id="e-terms">${Object.keys(VEC['Word2Vec original']).map(t=>`<button class="btn" type="button" data-t="${t}" aria-pressed="false">${t}</button>`).join('')}</div>
+    <label class="f" style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)"><input type="checkbox" id="e-lab"> Mostrar todas las palabras</label>
+    <p id="e-note"></p>
+    <button class="btn codebtn" data-open="lab-emb3d" type="button">Ver código Python</button>`,
+    `<canvas id="e-cv" aria-label="Proyección 3D de los embeddings"></canvas>
+     <div class="legend">${CATS.map(c=>`<span><i style="background:var(${CATVAR[c]})"></i>${c}</span>`).join('')}<span><i style="background:var(--share)"></i>Compartida</span><span><i style="background:var(--leak)"></i>Etiqueta pegada (fuga)</span><span><i style="background:transparent;border:2px solid var(--leak)"></i>Sufijo fijo</span></div>`));
+  const cv=$('#e-cv'); const C=setupCanvas(cv, 440);
+  let yaw=.6, pitch=-.35, auto=!RM, drag=null, term='cancelar', raf=0;
+  const notes = {
+   original:'Corpus original: las etiquetas (“facturación”, “entrega”…) y las cinco palabras fijas del sufijo aparecen en todas las frases y quedan en el centro. El modelo aprende la respuesta: fuga.',
+   limpio:'Corpus limpio: sin etiquetas ni sufijo. Los vecinos son palabras de la misma frase, no sinónimos, porque solo hay 20 frases.'};
+  function draw(){
+    const ctx=C.ctx, w=cv.clientWidth, hh=440; ctx.clearRect(0,0,w,hh);
+    const key=$('#e-mod').value, P=D.emb[key];
+    const cy=Math.cos(yaw), sy=Math.sin(yaw), cp=Math.cos(pitch), sp=Math.sin(pitch);
+    const S=Math.min(w,hh)*.36, f=3.2;
+    const proj=(x,y,z)=>{ const x1=x*cy+z*sy, z1=-x*sy+z*cy; const y1=y*cp-z1*sp, z2=y*sp+z1*cp; const k=f/(f+z2); return [w/2+x1*S*k, hh/2-y1*S*k, z2, k]; };
+    // cubo
+    ctx.strokeStyle=css('--line'); ctx.lineWidth=1;
+    const V=[-1,1]; const corners=[]; V.forEach(a=>V.forEach(b=>V.forEach(c=>corners.push([a,b,c]))));
+    corners.forEach((p,i)=>corners.forEach((q,j)=>{ if(j>i && (p[0]!==q[0])+(p[1]!==q[1])+(p[2]!==q[2])===1){ const A=proj(...p), B=proj(...q); ctx.beginPath(); ctx.moveTo(A[0],A[1]); ctx.lineTo(B[0],B[1]); ctx.stroke(); } }));
+    const pts = P.map(p=>{ const r=proj(p[1],p[2],p[3]); return {w:p[0], lab:p[4], x:r[0], y:r[1], z:r[2], k:r[3]}; });
+    const byW={}; pts.forEach(p=>byW[p.w]=p);
+    // líneas a vecinos
+    const nb = (VEC[key]||{})[term]||[];
+    if(byW[term]){ ctx.strokeStyle=css('--ink'); ctx.lineWidth=1.5; nb.forEach(n=>{ if(byW[n]){ ctx.beginPath(); ctx.moveTo(byW[term].x,byW[term].y); ctx.lineTo(byW[n].x,byW[n].y); ctx.stroke(); } }); }
+    pts.sort((a,b)=>b.z-a.z);
+    const showAll=$('#e-lab').checked; ctx.font='12px '+css('--f-body'); ctx.textAlign='left';
+    pts.forEach(p=>{
+      const r=(p.lab==='etiqueta'?6:4)*p.k; ctx.beginPath(); ctx.arc(p.x,p.y,r,0,7);
+      if(p.lab==='sufijo'){ ctx.strokeStyle=css('--leak'); ctx.lineWidth=2; ctx.stroke(); }
+      else { ctx.fillStyle = p.lab==='etiqueta'?css('--leak'): p.lab==='compartida'?css('--share'):catColor(p.lab); ctx.globalAlpha=.9; ctx.fill(); ctx.globalAlpha=1; }
+      const hl = p.w===term || nb.includes(p.w);
+      if(showAll || hl || p.lab==='etiqueta' || p.lab==='sufijo'){
+        ctx.fillStyle = hl?css('--ink'):css('--muted'); ctx.font=(hl?'600 13px ':'12px ')+css('--f-body'); ctx.fillText(p.w, p.x+r+3, p.y+4);
+      }
+    });
+    if(byW[term]){ const t=byW[term]; ctx.beginPath(); ctx.arc(t.x,t.y,10,0,7); ctx.strokeStyle=css('--ink'); ctx.lineWidth=2; ctx.stroke(); }
+  }
+  function loop(){ if(auto && !drag) yaw+=.004; draw(); raf=requestAnimationFrame(loop); }
+  function note(){ const key=$('#e-mod').value; const nb=(VEC[key]||{})[term]||[]; $('#e-note').innerHTML = `<b>${term}</b> → ${nb.join(', ')}.<br>${key.includes('original')?notes.original:notes.limpio}`; }
+  cv.addEventListener('pointerdown', e=>{ drag={x:e.clientX,y:e.clientY,yaw,pitch}; cv.setPointerCapture(e.pointerId); });
+  cv.addEventListener('pointermove', e=>{ if(!drag) return; yaw=drag.yaw+(e.clientX-drag.x)*.01; pitch=Math.max(-1.4,Math.min(1.4,drag.pitch+(e.clientY-drag.y)*.01)); if(RM) draw(); });
+  cv.addEventListener('pointerup', ()=>{ drag=null; });
+  $('#e-mod').addEventListener('change', ()=>{ note(); draw(); }); $('#e-lab').addEventListener('change', draw);
+  const setTerm = t => { term=t; h.querySelectorAll('#e-terms button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.t===t)); note(); draw(); };
+  h.querySelectorAll('#e-terms button').forEach(b=>b.addEventListener('click',()=>setTerm(b.dataset.t)));
+  setTerm('cancelar');
+  if(RM) draw(); else raf=requestAnimationFrame(loop);
+  const onR=()=>{ C.resize(); draw(); }; window.addEventListener('resize', onR);
+  return ()=>{ cancelAnimationFrame(raf); window.removeEventListener('resize', onR); };
+};
+
+/* Lab 7: OOV */
+Object.assign(INFO, {'lab-oov':{title:'Palabras fuera de vocabulario (OOV)', roles:['cd'], code:['py-vecinos','py-sgns'],
+ exp:`<p>Una palabra es <b>OOV</b> (fuera de vocabulario) cuando el modelo no la vio al entrenar.</p><ul><li><b>Word2Vec</b> guarda un vector por palabra completa: si la palabra no estaba, no tiene vector.</li><li><b>fastText</b> guarda también vectores de sus n-gramas de caracteres (3 a 5 letras, con <span class="mono">&lt;</span> y <span class="mono">&gt;</span> marcando inicio y fin). Una palabra nueva se representa con el promedio de los n-gramas que sí conoce.</li></ul><p>Por eso fastText entiende “paqte” como “paquete” y “facturacionn” como “facturación”. Si casi ningún n-grama es conocido, como en “reembolso”, el vector es ruido.</p>`}});
+builders.oov = (h) => {
+  const words = Object.keys(D.oov);
+  h.appendChild(labShell(`
+    <h3>Word2Vec contra fastText</h3>
+    <p>Elige una palabra que no está en el corpus. Los n-gramas en verde existen en el vocabulario de fastText; con ellos arma el vector.</p>
+    <div class="row">${words.map(w=>`<button class="btn" type="button" data-w="${w}" aria-pressed="false">${w}</button>`).join('')}</div>
+    <label class="f">Prueba otra palabra (solo n-gramas)<input type="text" id="oov-in" placeholder="por ejemplo: entregaa"></label>
+    <button class="btn codebtn" data-open="lab-oov" type="button">Ver código Python</button>`,
+    `<div class="stat-row" id="oov-s"></div><div><span class="eyebrow" id="oov-l"></span><div class="grams" id="oov-g" style="margin-top:8px"></div></div><p id="oov-n"></p>`));
+  const vocab = new Set(D.ngram_vocab);
+  const ngr = w => { const s='<'+w+'>'; const o=[]; for(let n=3;n<=5;n++) for(let i=0;i+n<=s.length;i++) o.push(s.slice(i,i+n)); return o; };
+  function render(w, pre){
+    const g = pre ? pre.ngramas : ngr(w.toLowerCase()); const known = g.filter(x=>vocab.has(x));
+    h.querySelectorAll('[data-w]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.w===w));
+    $('#oov-s').innerHTML = `<div class="stat"><span class="v" style="color:var(--leak)">Sin vector</span><span class="k">Word2Vec: la palabra no existe</span></div><div class="stat"><span class="v" style="color:var(--ok)">${known.length} de ${g.length}</span><span class="k">n-gramas conocidos por fastText</span></div>`;
+    $('#oov-l').textContent = `n-gramas de “${w}”`;
+    $('#oov-g').innerHTML = g.map((x,i)=>`<span class="gram${vocab.has(x)?' known':''}" style="animation-delay:${RM?0:i*35}ms">${x}</span>`).join('');
+    $('#oov-n').innerHTML = pre ? `Vecinos de fastText (corpus original): <b>${pre.vecinos.join(', ')}</b>.` + (known.length<5?' Con tan pocos n-gramas conocidos, el resultado es ruido.':'') : `Esta página no puede calcular vecinos para palabras nuevas; el conteo de n-gramas conocidos sí es real.`;
+  }
+  h.querySelectorAll('[data-w]').forEach(b=>b.addEventListener('click',()=>render(b.dataset.w, D.oov[b.dataset.w])));
+  $('#oov-in').addEventListener('input', e=>{ const w=e.target.value.trim(); if(w.length>=2) render(w, null); });
+  render('paqte', D.oov['paqte']);
+};
+
+/* Lab 8: torneo */
+Object.assign(INFO, {'lab-torneo':INFO.matriz});
+builders.torneo = (h) => {
+  h.appendChild(labShell(`
+    <h3>Las 8 representaciones</h3>
+    <p>F1 con validación agrupada. Las barras rayadas tienen fuga: sus números son altos porque el corpus traía la respuesta.</p>
+    <div class="row"><button class="btn" id="t-m1" aria-pressed="true" type="button">F1 macro</button><button class="btn" id="t-m2" aria-pressed="false" type="button">F1 Cancelación</button></div>
+    <label class="f" style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)"><input type="checkbox" id="t-hide"> Ocultar las que tienen fuga</label>
+    <button class="btn" id="t-replay" type="button">Repetir animación</button>
+    <button class="btn codebtn" data-open="lab-torneo" type="button">Ver código Python</button>`,
+    `<div class="race" id="race"></div><p class="note" id="t-note">Campeón: TF-IDF caracteres. Empata con palabras + caracteres (diferencia 0,005) y usa menos rasgos.</p>`));
+  let metric='F1_grupo';
+  function render(){
+    const rows=[...D.matriz].sort((a,b)=>b[metric]-a[metric]); const hide=$('#t-hide').checked;
+    $('#race').innerHTML = rows.map(r=>{ const champ=r.representacion==='TF-IDF caracteres'; const col = r.representacion.startsWith('TF-IDF')?'var(--ml)':'var(--cd)';
+      return `<div class="r${r.valida?'':' leak'}${(!r.valida&&hide)?' hide':''}"><span style="${champ?'font-weight:700':''}">${r.representacion}${champ?' · campeón':''}${r.valida?'':' · fuga'}</span><div class="track"><div class="fill" data-w="${r[metric]*100}" style="background:${col}"></div></div><b class="tab-num">${fmt(r[metric],2)}</b></div>`; }).join('');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>$('#race').querySelectorAll('.fill').forEach(f=>f.style.width=f.dataset.w+'%')));
+  }
+  $('#t-m1').addEventListener('click',()=>{ metric='F1_grupo'; $('#t-m1').setAttribute('aria-pressed',true); $('#t-m2').setAttribute('aria-pressed',false); render(); });
+  $('#t-m2').addEventListener('click',()=>{ metric='F1crit_grupo'; $('#t-m2').setAttribute('aria-pressed',true); $('#t-m1').setAttribute('aria-pressed',false); render(); });
+  $('#t-hide').addEventListener('change', render); $('#t-replay').addEventListener('click', render);
+  render();
+};
+
+/* ---------------- Glosario ---------------- */
+const GL = [
+ {k:'bow', t:'BoW (bolsa de palabras)', d:'Un vector de conteos: cuántas veces sale cada palabra del vocabulario, sin orden ni pesos.', roles:['ml'], code:['py-g-bow'], lab:'tfidf',
+  codeNote:'El análisis no usa BoW directamente; este ejemplo muestra la idea con CountVectorizer sobre las 20 frases base.',
+  que:'Cada texto se convierte en un vector con una columna por palabra del vocabulario y el número de veces que aparece. Se pierde el orden: “no me cobraron” y “me cobraron no” dan el mismo vector.',
+  aqui:'Es el punto de partida de TF-IDF. Con las 20 frases base, BoW da un vocabulario de unas 80 palabras; “la” y “de” pesan igual que “suscripción”, porque solo se cuentan.',
+  importa:'Es rápido e interpretable, pero no distingue palabras informativas de palabras comunes. TF-IDF corrige eso.'},
+ {k:'tfidf', t:'TF-IDF', d:'BoW con pesos: sube los términos raros del corpus y baja los que están en casi todos los textos.', roles:['ml'], code:['py-tfidf'], lab:'tfidf',
+  que:'TF es la frecuencia del término en el texto; IDF es ln((1 + n) / (1 + df)) + 1, donde df es el número de textos que lo contienen. El peso es TF × IDF y el vector se normaliza a longitud 1.',
+  aqui:'Las cuatro variantes del torneo de la Actividad B son TF-IDF: palabras (0,211), lemas (0,311), caracteres (0,466) y palabras + caracteres (0,471).',
+  importa:'Lo que cambia entre variantes no es la fórmula sino la unidad que se cuenta: palabras, lemas o fragmentos de letras. Esa elección decidió el torneo.'},
+ {k:'ngram', t:'N-grama de palabras', d:'Secuencias de n palabras seguidas; con bigramas, “no reconozco” es un solo rasgo.', roles:['ml'], code:['py-g-word12'], lab:'tfidf',
+  que:'Un unigrama es una palabra; un bigrama, dos palabras consecutivas. Con ngram_range=(1, 2) el vectorizador usa ambos.',
+  aqui:'Es la configuración word_12 del laboratorio original y del “TF-IDF palabras” del torneo. Los bigramas capturan negaciones como “no reconozco” o “no deseo”.',
+  importa:'Más contexto implica más columnas y más riesgo de sobreajuste. Con frases nuevas casi no hay bigramas compartidos, por eso esta variante quedó última (0,211).'},
+ {k:'charwb', t:'char_wb 3–5', d:'Fragmentos de 3 a 5 letras dentro de cada palabra. Es la representación campeona.', roles:['ml'], code:['py-g-char'], lab:'ngramas',
+  que:'Con analyzer=\'char_wb\' cada palabra se rodea de espacios y se corta en ventanas de 3, 4 y 5 caracteres; cada fragmento es una columna.',
+  aqui:'Ganó el torneo con F1 macro 0,466 y 961 rasgos. “cancelar” y “cancelación” no comparten palabra, pero sí fragmentos como “canc”, “cance” y “ancel”.',
+  importa:'Generaliza a frases nuevas y tolera errores de escritura, a cambio de menos interpretabilidad que las palabras.'},
+ {k:'params', t:'sublinear_tf y min_df', d:'Dos ajustes del vectorizador: suavizar conteos repetidos y descartar términos raros.', roles:['ml'], code:['py-g-params'], lab:'tfidf',
+  que:'sublinear_tf=True reemplaza el conteo por 1 + log(tf), así una palabra repetida tres veces no pesa el triple. min_df=2 descarta términos que aparecen en menos de 2 textos de entrenamiento.',
+  aqui:'Todas las variantes usan sublinear_tf=True y min_df=2. Con min_df=2, un typo como “paqte” (3 mensajes) puede desaparecer si queda solo en un pliegue; por eso se corrigió en P6.',
+  importa:'min_df recorta ruido y tamaño, pero también puede borrar señales raras de la clase crítica. Conviene revisarlo cuando la clase tiene pocos ejemplos.'},
+ {k:'lemas', t:'Lematización', d:'Lleva cada palabra a su forma de diccionario: llegó y llegado se vuelven llegar.', roles:['ml'], code:['py-lemas'], lab:null,
+  que:'Reemplaza cada palabra por su lema: verbos al infinitivo, sustantivos y adjetivos al masculino singular. Es más interpretable que el stemming, que solo recorta terminaciones.',
+  aqui:'spaCy no estaba instalado, así que el análisis usa un diccionario propio de 29 palabras más una regla de plural. La variante con lemas sacó 0,311 y quedó tercera.',
+  importa:'Une flexiones (llegó, llegado) pero no derivaciones: cancelar y cancelación siguen separadas. Los n-gramas de caracteres sí las unen.'},
+ {k:'pipe', t:'Pipeline', d:'Encadena vectorizador y clasificador para ajustarlos juntos, siempre con datos de entrenamiento.', roles:['ml'], code:['py-g-pipe'], lab:null,
+  que:'Un objeto de scikit-learn que ejecuta pasos en orden: primero vectoriza, luego clasifica. Al llamar fit, todos los pasos aprenden solo con lo que se les entrega.',
+  aqui:'Cada variante del torneo es un Pipeline nuevo por pliegue. El vocabulario y el IDF salen solo de las frases de entrenamiento de ese pliegue.',
+  importa:'Si el vectorizador se ajusta con todo el corpus, el IDF ya “conoce” el test: es fuga. El Pipeline la evita sin esfuerzo adicional.'},
+ {k:'fuga', t:'Fuga de información', d:'Cuando el entrenamiento ve algo que no estará disponible al clasificar. Infla las métricas.', roles:['cd'], code:['py-g-fuga'], lab:'fuga',
+  que:'Cualquier información del resultado o del test que se cuela en el entrenamiento. El modelo parece excelente y falla en producción.',
+  aqui:'Se encontraron tres: duplicados entre train y test (F1 1,00), la prioridad “alta” que solo existe en Facturación y Cancelación (sube el F1 a 0,32) y la etiqueta pegada al corpus de embeddings (sube fastText a 0,81).',
+  importa:'Las tres cifras más altas del ejercicio eran fugas. Por eso, ante un resultado muy bueno, lo primero es buscar la fuga.'},
+ {k:'frase', t:'Frase base', d:'El texto sin ruido. Revela que 1.200 mensajes son en realidad 20 frases repetidas.', roles:['cd'], code:['py-frase'], lab:'fuga',
+  que:'Una versión normalizada del mensaje: minúsculas, sin plantillas de correo ni URL, sin emojis ni signos y con typos corregidos.',
+  aqui:'1.200 filas, 219 textos distintos y solo 20 frases base, 4 por categoría. La columna grupo guarda la frase base y define los pliegues.',
+  importa:'Sin esta clave no se puede saber cuánto del test ya estaba en entrenamiento, ni construir una partición honesta.'},
+ {k:'sgkf', t:'StratifiedGroupKFold', d:'Partición en pliegues que nunca separa un grupo y mantiene la proporción de clases.', roles:['cd','ml'], code:['py-g-cv'], lab:'fuga',
+  que:'Validación cruzada que recibe un grupo por fila. Todas las filas de un grupo quedan juntas en entrenamiento o en prueba, y cada pliegue conserva la mezcla de clases.',
+  aqui:'4 pliegues por frase base: cada uno deja fuera 5 frases completas, una por categoría. Las actividades B, C y D usan exactamente los mismos pliegues.',
+  importa:'Con la partición aleatoria, el 91 % del test estaba idéntico en entrenamiento. Agrupando, el F1 de palabras pasa de 1,00 a 0,22: esa es la cifra honesta.'},
+ {k:'ab', t:'Prueba A/B', d:'Compara el estado actual (A) con una transformación (B), con la misma evaluación.', roles:['cd'], code:['py-g-ab'], lab:null,
+  que:'Un experimento controlado: todo igual excepto un cambio. Si B mejora la métrica de forma consistente, se adopta.',
+  aqui:'Cada uno de los 10 problemas de la Actividad A tiene su prueba, medida con partición aleatoria y por grupo. Las limpiezas P2 a P6 movieron el F1 menos de 0,01.',
+  importa:'Convierte cada limpieza en una hipótesis que se puede comprobar. También muestra cuándo una mejora es fuga, como en P9.'},
+ {k:'pii', t:'PII', d:'Información personal identificable. Aquí, correos que revelan el id del cliente.', roles:['cd','gia'], code:['py-g-pii'], lab:null,
+  que:'Datos que permiten identificar a una persona: nombre, documento, correo, teléfono. Deben enmascararse antes de entrenar o guardar logs.',
+  aqui:'71 mensajes traen “correo clienteN@mail.co”, y N coincide con el id del cliente en el 100 % de los casos. Se elimina el bloque completo antes de vectorizar (P2).',
+  importa:'Es un riesgo legal (Ley 1581 de 2012 en Colombia) y además una fuga de identificador.'},
+ {k:'clf', t:'Regresión logística balanceada', d:'Clasificador lineal que entrega probabilidades; balanced da más peso a las clases pequeñas.', roles:['ml'], code:['py-g-clf'], lab:null,
+  que:'Modelo lineal que asigna una probabilidad a cada clase. Con class_weight=\'balanced\', los errores en clases pequeñas pesan más durante el entrenamiento.',
+  aqui:'Es el mismo clasificador para todas las representaciones. En P8, quitar el balanceo bajó el F1 por grupo de 0,219 a 0,196.',
+  importa:'Sus probabilidades permiten fijar umbrales en la Actividad D. Sus coeficientes muestran qué rasgos empujan hacia cada clase.'},
+ {k:'pr', t:'Precisión y recall', d:'Precisión: cuántas alarmas eran ciertas. Recall: cuántos casos reales se encontraron.', roles:['ml','gia'], code:['py-g-pr'], lab:'f1',
+  que:'Precisión = aciertos / todo lo que el modelo marcó como esa clase. Recall = aciertos / todos los casos reales de esa clase.',
+  aqui:'Para la alerta de Cancelación con umbral 0,15: recall 0,79 (encuentra 91 de 115 cancelaciones) y precisión 0,24 (una de cada cuatro alertas es real).',
+  importa:'Casi siempre se intercambian: subir una baja la otra. El negocio decide cuál pesa más; aquí, no perder cancelaciones.'},
+ {k:'f1', t:'F1 macro', d:'Promedio simple del F1 de las 5 clases: Cancelación pesa igual que Facturación.', roles:['ml'], code:['py-g-f1'], lab:'f1',
+  que:'El F1 de una clase es la media armónica de precisión y recall. El F1 macro promedia el F1 de todas las clases sin ponderar por su tamaño.',
+  aqui:'Es la métrica principal del torneo. El campeón saca 0,466 en promedio de pliegues; su exactitud es 0,52, pero el F1 macro baja porque Producto y Servicio quedan en 0.',
+  importa:'Con clases desbalanceadas, la exactitud esconde los fallos en clases pequeñas. El F1 macro los hace visibles.'},
+ {k:'cm', t:'Matriz de confusión', d:'Tabla de clase real contra clase predicha: muestra con qué se confunde cada clase.', roles:['ml'], code:['py-g-cm'], lab:'f1',
+  que:'Filas = clase real, columnas = clase predicha. La diagonal son los aciertos; fuera de ella están los errores y hacia dónde van.',
+  aqui:'Con el campeón, Servicio se clasifica sobre todo como Producto (150) y Producto como Servicio (105). Facturación y Entrega quedan casi perfectas.',
+  importa:'Dice qué corregir: aquí, falta vocabulario común dentro de Servicio y Producto, no un mejor clasificador.'},
+ {k:'umbral', t:'Umbral', d:'La probabilidad mínima para actuar. Reemplaza a “elegir siempre la clase más probable”.', roles:['gia','ml'], code:['py-umbral'], lab:'umbrales',
+  que:'En lugar del argmax, se fija un corte sobre la probabilidad. Un umbral bajo actúa más seguido; uno alto, solo con mucha seguridad.',
+  aqui:'El comité fijó dos: alerta de Cancelación si P ≥ 0,15 (recall 0,79) y autoclasificación solo si la confianza es ≥ 0,70 (7 % de los mensajes, exactitud 100 %).',
+  importa:'Traduce el costo de cada error en una regla operativa. Los mensajes de baja confianza pasan a revisión humana.'},
+ {k:'emb', t:'Embedding', d:'Un vector denso de pocas dimensiones donde palabras de uso parecido quedan cerca.', roles:['cd'], code:['py-emb'], lab:'emb3d',
+  que:'Cada palabra se representa con un vector continuo (aquí, 50 números) aprendido del corpus. A diferencia de TF-IDF, palabras distintas pueden tener vectores parecidos.',
+  aqui:'Se entrenaron con el corpus original (800 líneas, 20 distintas, etiqueta pegada) y con uno limpio. Con el limpio, la clasificación llega solo a 0,25–0,26.',
+  importa:'La cercanía refleja el corpus, no el significado. Con 20 frases, los vecinos son palabras de la misma frase, no sinónimos.'},
+ {k:'w2v', t:'Word2Vec skip-gram', d:'Aprende el vector de cada palabra intentando predecir las palabras que la rodean.', roles:['cd'], code:['py-sgns'], lab:'emb3d',
+  codeNote:'gensim no estaba instalado; el análisis usa esta implementación en numpy del mismo algoritmo (skip-gram con muestreo negativo).',
+  que:'Para cada palabra se toma una ventana de vecinas (aquí, 5) y se ajustan los vectores para predecirlas. El muestreo negativo agrega palabras al azar como ejemplos falsos.',
+  aqui:'50 dimensiones, ventana 5, 30 épocas con el corpus original y 100 con el limpio. Guarda un vector por palabra completa.',
+  importa:'Si una palabra no estaba en el corpus, no tiene vector: “paqte” o “facturacionn” quedan sin representación.'},
+ {k:'ft', t:'fastText', d:'Word2Vec que también aprende vectores de fragmentos de letras; arma palabras nuevas con ellos.', roles:['cd'], code:['py-g-ftng'], lab:'oov',
+  que:'Cada palabra es la suma de su propio vector y los de sus n-gramas de caracteres (3 a 5, con < y > en los bordes). Una palabra desconocida se arma con los fragmentos que sí conoce.',
+  aqui:'Con el corpus original, fastText entiende “paqte” como paquete y “facturacionn” como facturación. Ocupa más memoria: 449 a 474 KB frente a 64 a 67 KB de Word2Vec.',
+  importa:'Es la mejor opción para texto con errores de escritura, pero necesita un corpus de dominio más grande que este.'},
+ {k:'oov', t:'OOV (fuera de vocabulario)', d:'Palabra que el modelo nunca vio al entrenar y para la que no tiene representación propia.', roles:['cd'], code:['py-g-oov'], lab:'oov',
+  que:'Out of vocabulary: términos nuevos, mal escritos o raros. TF-IDF de palabras los ignora y Word2Vec no tiene vector para ellos.',
+  aqui:'El 98,5 % de los tokens del dataset está en el corpus original (solo falta emo_neg), porque son las mismas frases. Las pruebas con facturacionn, paqte, cancelacion y reembolso muestran la diferencia entre modelos.',
+  importa:'En producción la cobertura baja con el tiempo. Hay que vigilarla, porque los mensajes reales traen palabras nuevas.'},
+ {k:'cos', t:'Similitud coseno', d:'Mide el ángulo entre dos vectores, sin importar su longitud. Define quién es vecino de quién.', roles:['cd'], code:['py-g-cos'], lab:'emb3d',
+  que:'coseno = (a · b) / (|a| × |b|). Vale 1 si los vectores apuntan igual, 0 si son perpendiculares.',
+  aqui:'most_similar ordena las palabras por coseno con el término. Por ejemplo, con Word2Vec original, “cancelar” → quiero, suscripción, confirmen, inmediata.',
+  importa:'Un coseno alto dice que dos palabras se usaron en contextos parecidos en este corpus, no que signifiquen lo mismo.'},
+ {k:'docvec', t:'Vector de documento', d:'Un vector por mensaje, hecho promediando los vectores de sus palabras.', roles:['cd'], code:['py-docvec'], lab:null,
+  que:'Para clasificar un texto con embeddings de palabras hay que resumirlo en un solo vector. Lo más simple es el promedio.',
+  aqui:'La clase PromedioEmbeddings lo calcula y, con el corpus limpio, reentrena los vectores dentro de cada pliegue. Resultado: F1 0,25 (Word2Vec) y 0,26 (fastText).',
+  importa:'El promedio ignora el orden y diluye las palabras clave entre artículos y preposiciones. Alternativas: promedio ponderado por TF-IDF, Doc2Vec o embeddings de oración.'},
+ {k:'matriz', t:'Matriz comparativa', d:'La tabla de decisión: 8 representaciones con desempeño, costo, interpretabilidad y robustez.', roles:['ml','gia'], code:['py-matriz'], lab:'torneo',
+  que:'Junta, para cada representación, F1 macro, F1 de la clase crítica, tiempo, rasgos, memoria, interpretabilidad (1 a 5), robustez por canal (1 a 5) y si es válida.',
+  aqui:'Dos filas quedan fuera por fuga. Entre las válidas empatan palabras + caracteres (0,471) y caracteres (0,466); con la regla de desempate gana caracteres por tener menos rasgos.',
+  importa:'Obliga a decidir con más que el F1: costo, explicación y robustez también cuentan para el comité.'},
+];
+GL.forEach(g => {
+  INFO['g-'+g.k] = {title:g.t, roles:g.roles, code:g.code, codeNote:g.codeNote,
+    exp:`<p><b>Qué es.</b> ${g.que}</p><p><b>En este ejercicio.</b> ${g.aqui}</p><p><b>Por qué importa.</b> ${g.importa}</p>` + (g.lab ? `<div><button class="btn" type="button" data-golab="${g.lab}" data-close="1">Abrir el laboratorio</button></div>` : '')};
+});
+$('#gloss').innerHTML = GL.map(g=>`<button class="term" type="button" data-open="g-${g.k}"><b>${g.t}</b><span>${g.d}</span></button>`).join('');
+
+showLab('fuga');
+})();
+</script>
+
+</body>
+</html>

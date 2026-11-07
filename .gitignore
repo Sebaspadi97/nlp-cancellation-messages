@@ -1,0 +1,8 @@
+# Datos del ejercicio: material de práctica, no se publican
+datos/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
